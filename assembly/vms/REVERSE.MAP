@@ -1,0 +1,94 @@
+
+                                                                 2-JAN-2018 22:11        VAX-11 Linker V04-00             Page    1
+
+                                             +------------------------+
+                                             ! Object Module Synopsis !
+                                             +------------------------+
+
+Module Name     Ident              Bytes      File                                Creation Date      Creator
+-----------     -----              -----      -----                               -------------      -------
+REVERSE         02-00                1034 [JGUILLAUMES.ASM]REVERSE.OBJ;59       2-JAN-2018 22:11  VAX/VMS Macro V04-00
+
+                                            +--------------------------+
+                                            ! Program Section Synopsis !
+                                            +--------------------------+
+
+Psect Name      Module Name       Base     End           Length            Align                 Attributes
+----------      -----------       ----     ---           ------            -----                 ----------
+RODATA                          00000200 00000263 00000064 (        100.) WORD 1   PIC,USR,CON,REL,LCL,  SHR,NOEXE,  RD,NOWRT,NOVEC
+                REVERSE         00000200 00000263 00000064 (        100.) WORD 1
+DATA                            00000400 0000060F 00000210 (        528.) WORD 1   PIC,USR,CON,REL,LCL,NOSHR,NOEXE,  RD,  WRT,NOVEC
+                REVERSE         00000400 0000060F 00000210 (        528.) WORD 1
+CODE                            00000800 00000995 00000196 (        406.) LONG 2   PIC,USR,CON,REL,LCL,  SHR,  EXE,  RD,NOWRT,NOVEC
+                REVERSE         00000800 00000995 00000196 (        406.) LONG 2
+
+                                                +-----------------+
+                                                ! Symbols By Name !
+                                                +-----------------+
+
+Symbol          Value              Symbol          Value              Symbol          Value              Symbol          Value
+------          -----              ------          -----              ------          -----              ------          -----
+BUFSIZ          00000100           
+REVERSE         00000800-R         
+
+
+
+	  Key for special characters above:
+		+------------------+
+		! *  - Undefined   !
+		! U  - Universal   !
+		! R  - Relocatable !
+		! X  - External    !
+		! V  - Vectored    !
+		+------------------+
+
+USERS:[JGUILLAUMES.ASM]REVERSE.EXE;49                            2-JAN-2018 22:11        VAX-11 Linker V04-00             Page    2
+
+                                                 +----------------+
+                                                 ! Image Synopsis !
+                                                 +----------------+
+
+Virtual memory allocated:                         00000200 00000BFF 00000A00 (2560. bytes, 5. pages)
+Stack size:                                             20. pages
+Image header virtual block limits:                       1.        1. (    1. block)
+Image binary virtual block limits:                       2.        4. (    3. blocks)
+Image name and identification:                    REVERSE 02-00
+Number of files:                                         4.
+Number of modules:                                       3.
+Number of program sections:                              7.
+Number of global symbols:                              260.
+Number of image sections:                                7.
+User transfer address:                            00000800
+Debugger transfer address:                        7FFEDF68
+Number of code references to shareable images:           1.
+Image type:                                       EXECUTABLE.
+Map format:                                       DEFAULT in file USERS:[JGUILLAUMES.ASM]REVERSE.MAP;31
+Estimated map length:                             30. blocks
+                                              +---------------------+
+                                              ! Link Run Statistics !
+                                              +---------------------+
+
+Performance Indicators                            Page Faults	CPU Time	Elapsed Time
+----------------------                            -----------	--------	------------
+    Command processing:                                    69	00:00:00.02	00:00:00.02
+    Pass 1:                                                95	00:00:00.09	00:00:00.10
+    Allocation/Relocation:                                 20	00:00:00.01	00:00:00.02
+    Pass 2:                                                18	00:00:00.04	00:00:00.04
+    Map data after object module synopsis:                  2	00:00:00.01	00:00:00.01
+    Symbol table output:                                    0	00:00:00.01	00:00:00.01
+Total run values:                                         204	00:00:00.18	00:00:00.20
+
+Using a working set limited to 1000 pages and 63 pages of data storage (excluding image)
+
+Total number object records read (both passes):   103
+    of which 20 were in libraries and 2 were DEBUG data records containing 93 bytes
+82 bytes of DEBUG data were written,starting at VBN 5 with 1 blocks allocated
+
+Number of modules extracted explicitly             = 0
+    with 1 extracted to resolve undefined symbols
+
+0 library searches were for symbols not in the library searched
+
+A total of 0 global symbol table records was written
+
+LINK/MAP REVERSE

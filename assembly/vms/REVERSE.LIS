@@ -1,0 +1,299 @@
+REVERSE                         - String reversing - VAX MACRO            2-JAN-2018 22:11:33  VAX/VMS Macro V04-00        Page   1
+02-00                                                                     2-JAN-2018 22:11:25  [JGUILLAUMES.ASM]REVERSE.MAR;47   (1)
+
+                                     0000     1 	.TITLE	REVERSE	- String reversing - VAX MACRO
+                                     0000     2 	.IDENT	/02-00/
+                                     0000     3 
+                                     0000     4 	$ssdef			; Status codes
+                                     0000     5 	$iodef			; QIOW definition
+                                     0000     6 
+                           00000100  0000     7 	BUFSIZ==256		; Buffer size
+                                     0000     8 
+                                     0000     9 	; Non-modifiable data	
+                                 00000000    10 	.PSECT	RODATA,NOEXE,NOWRT,PIC,SHR,WORD
+                                     0000    11 
+74 78 65 74 20 61 20 74 75 70 6E 49  0000    12 PROMPT:	.ASCII	/Input a text line:  /
+            20 20 3A 65 6E 69 6C 20  000C       
+                           00000014  0014    13 	LPROMPT = .-PROMPT
+                                     0014    14 
+68 73 69 6E 69 46 0000001C'010E0000' 0014    15 ADEU:	.ASCID	/Finished	     /
+            20 20 20 20 20 09 64 65  0022       
+                           00000016  002A    16 	LADEU = .-ADEU
+                                     002A    17 
+6E 69 6C 20 64 65 73 72 65 76 65 52  002A    18 INVER:	.ASCII	/Reversed line:      /
+            20 20 20 20 20 20 3A 65  0036       
+                           00000014  003E    19 	LINVER = .-INVER
+                                     003E    20 
+4E 49 24 53 59 53 00000046'010E0000' 003E    21 SYSIN:	.ASCID	/SYS$INPUT:/			; Input channel device
+                        3A 54 55 50  004C       
+55 4F 24 53 59 53 00000058'010E0000' 0050    22 SYSOUT:	.ASCID	/SYS$OUTPUT:/			; Output channel device
+                     3A 54 55 50 54  005E       
+                                 20  0063    23 BLANK:	.BYTE	^X20
+                                     0064    24 
+                                     0064    25 	; Read-Write data
+                                 00000000    26 	.PSECT	DATA,NOEXE,WRT,PIC,NOSHR,WORD
+                           00000000  0000    27 CHIN:	.LONG	0				; Input channel
+                           00000000  0004    28 CHOUT:	.LONG	0				; Output channel
+                           00000000  0008    29 IOSB:	.LONG	0				; I/O Status block
+                           00000000  000C    30 	.LONG	0				;
+                           00000110  0010    31 BUFFER:	.BLKB	BUFSIZ				; Input buffer
+                           00000210  0110    32 BUFOUT:	.BLKB	BUFSIZ				; Output buffer
+                                     0210    33 
+                                     0210    34 	; Executable code
+                                 00000000    35 	.PSECT	CODE,EXE,PIC,NOWRT,SHR,LONG
+                                     0000    36 
+                               0000  0000    37 START:	.ENTRY  REVERSE,^M<>
+                                     0002    38 
+        0100 8F   20   60   00   2C  0002    39 	MOVC5	#0,(r0),#32,#BUFSIZ,BUFFER	; Zero-fill input buffer
+                   00000010'EF       0009       
+        0100 8F   20   60   00   2C  000E    40 	MOVC5	#0,(r0),#32,#BUFSIZ,BUFOUT	; Zero-fill output buffer
+                   00000110'EF       0015       
+                                     001A    41 
+                                     001A    42 	$ASSIGN_S -				; Open input channel
+                                     001A    43 		devnam=SYSIN,-
+                                     001A    44 		chan=CHIN
+                         1A 50   E9  002F    45 	BLBC	R0,ERRASSIGN
+                                     0032    46 	$ASSIGN_S -				; Open output channel
+                                     0032    47 		devnam=SYSOUT,-
+                                     0032    48 		chan=CHOUT
+                         02 50   E9  0047    49 	BLBC	R0,ERRASSIGN
+                            03   11  004A    50 	BRB	GETLINIA
+REVERSE                         - String reversing - VAX MACRO            2-JAN-2018 22:11:33  VAX/VMS Macro V04-00        Page   2
+02-00                                                                     2-JAN-2018 22:11:25  [JGUILLAUMES.ASM]REVERSE.MAR;47   (1)
+
+                                     004C    51 
+                                     004C    52 ERRASSIGN:					; Error handling in $ASSIGM
+                          013B   31  004C    53 	BRW	ERROR
+                                     004F    54 
+                                     004F    55 GETLINIA:					; Channel assigned ok!	
+                                     004F    56 	$QIOW_S -				; Get input line
+                                     004F    57 		chan=CHIN,-
+                                     004F    58 		func=#IO$_READPROMPT,-
+                                     004F    59 		iosb=IOSB,-
+                                     004F    60 		p1=BUFFER,p2=#BUFSIZ,-
+                                     004F    61 		p5=#PROMPT,p6=#LPROMPT
+                         0C 50   E9  0080    62 	BLBC	R0,ERRGET	
+              50   00000008'EF   3C  0083    63 	MOVZWL	IOSB,R0
+                         02 50   E9  008A    64 	BLBC	R0,ERRGET
+                            03   11  008D    65 	BRB	OKGET
+                                     008F    66 
+                          00F8   31  008F    67 ERRGET:	BRW	ERROR
+                                     0092    68 
+              52   0000000A'EF   3C  0092    69 OKGET:	MOVZWL	IOSB+2,R2			; R2 = read byte count
+                            04   BB  0099    70 	PUSHR	#^M<R2>				; Save number of bytes to be used afterward
+              51   00000010'EF   9E  009B    71 	MOVAB	BUFFER,R1			; R1 => @Input buffer
+                       51   52   A0  00A2    72 	ADDW	R2,R1				; R1 => @End of input string
+              53   00000110'EF   9E  00A5    73 	MOVAB	BUFOUT,R3			; R3 => @Output buffer
+                                     00AC    74 	
+                       00   52   B1  00AC    75 	CMPW	R2,#0				; Empty buffer?
+                            7E   13  00AF    76 	BEQL	ACABAR				; Yes: finish
+                       83   71   90  00B1    77 LOOP:	MOVB	-(R1),(R3)+			; Move in reverse order
+                         FA 52   F4  00B4    78 	SOBGEQ	R2,LOOP				; Repeat for all the string
+                                     00B7    79 
+                                     00B7    80 	$QIOW_S	-				; Output "reversed" label
+                                     00B7    81 		chan=CHOUT,-
+                                     00B7    82 		func=#IO$_WRITEVBLK,-
+                                     00B7    83 		iosb=IOSB,-
+                                     00B7    84 		p1=INVER,-
+                                     00B7    85 		p2=#LINVER,-
+                                     00B7    86 		p4=#^X00000024
+                         0A 50   E9  00E0    87 	BLBC	R0,100$
+              50   00000008'EF   3C  00E3    88 	MOVZWL	IOSB,R0
+                         03 50   E8  00EA    89 	BLBS	R0,200$
+                                     00ED    90 
+                          009A   31  00ED    91 100$:	BRW	ERROR
+                                     00F0    92 
+                                     00F0    93 200$:
+                            04   BA  00F0    94 	POPR	#^M<R2>				; Get back string length from stack	
+                                     00F2    95 	$QIOW_S	-				; Output reversed string
+                                     00F2    96 		chan=CHOUT,-
+                                     00F2    97 		func=#IO$_WRITEVBLK,-
+                                     00F2    98 		iosb=IOSB,-
+                                     00F2    99 		p1=BUFOUT,-
+                                     00F2   100 		p2=R2,-
+                                     00F2   101 		p4=#^X02000000
+                         68 50   E9  011F   102 	BLBC	R0,ERROR
+              50   00000008'EF   3C  0122   103 	MOVZWL	IOSB,R0
+                         5E 50   E9  0129   104 	BLBC	R0,ERROR
+                          FF20   31  012C   105 	BRW	GETLINIA			; Go back to read one more line
+                                     012F   106 
+                                     012F   107 ACABAR:						; End of work
+REVERSE                         - String reversing - VAX MACRO            2-JAN-2018 22:11:33  VAX/VMS Macro V04-00        Page   3
+02-00                                                                     2-JAN-2018 22:11:25  [JGUILLAUMES.ASM]REVERSE.MAR;47   (1)
+
+                                     012F   108 	$QIOW_S	-				; Show goodbye message
+                                     012F   109 		chan=CHOUT,-
+                                     012F   110 		func=#IO$_WRITEVBLK,-
+                                     012F   111 		iosb=IOSB,-
+                                     012F   112 		p1=ADEU,-
+                                     012F   113 		p2=#LADEU,-
+                                     012F   114 		p4=#^X00000020
+                         2F 50   E9  0158   115 	BLBC	R0,ERROR
+              50   00000008'EF   3C  015B   116 	MOVZWL	IOSB,R0
+                         25 50   E9  0162   117 	BLBC	R0,ERROR
+                                     0165   118 
+                                     0165   119 	$DASSGN_S chan=CHIN			; Close input channel
+                                     0173   120 	$DASSGN_S chan=CHOUT			; Close output channel
+                                     0181   121 
+                                     0181   122 	$exit_s	#SS$_NORMAL			; End OK
+                                     018A   123 
+                       52   50   D0  018A   124 ERROR:	MOVL	R0,R2				; Error handling
+                            50   DD  018D   125 	PUSHL	R0
+              00000000'GF   01   FB  018F   126 	CALLS	#1,G^LIB$STOP			; Force error exit
+                                     0196   127 
+                                     0196   128 	.END 	START
+REVERSE                         - String reversing - VAX MACRO            2-JAN-2018 22:11:33  VAX/VMS Macro V04-00        Page   4
+Symbol table                                                              2-JAN-2018 22:11:25  [JGUILLAUMES.ASM]REVERSE.MAR;47   (1)
+
+$$T1                           = 00000001                 
+ACABAR                           0000012F R     04        
+ADEU                             00000014 R     02        
+BLANK                            00000063 R     02        
+BUFFER                           00000010 R     03        
+BUFOUT                           00000110 R     03        
+BUFSIZ                         = 00000100  G              
+CHIN                             00000000 R     03        
+CHOUT                            00000004 R     03        
+ERRASSIGN                        0000004C R     04        
+ERRGET                           0000008F R     04        
+ERROR                            0000018A R     04        
+GETLINIA                         0000004F R     04        
+INVER                            0000002A R     02        
+IO$_READPROMPT                 = 00000037                 
+IO$_WRITEVBLK                  = 00000030                 
+IOSB                             00000008 R     03        
+LADEU                          = 00000016                 
+LIB$STOP                         ********   X   04        
+LINVER                         = 00000014                 
+LOOP                             000000B1 R     04        
+LPROMPT                        = 00000014                 
+OKGET                            00000092 R     04        
+PROMPT                           00000000 R     02        
+REVERSE                          00000000 RG    04        
+SS$_NORMAL                     = 00000001                 
+START                            00000000 R     04        
+SYS$ASSIGN                       ********  GX   04        
+SYS$DASSGN                       ********  GX   04        
+SYS$EXIT                         ********  GX   04        
+SYS$QIOW                         ********  GX   04        
+SYSIN                            0000003E R     02        
+SYSOUT                           00000050 R     02        
+
+                                                +----------------+
+                                                ! Psect synopsis !
+                                                +----------------+
+
+PSECT name                      Allocation          PSECT No.  Attributes     
+----------                      ----------          ---------  ----------     
+.  ABS  .                       00000000  (    0.)  00 (  0.)  NOPIC   USR   CON   ABS   LCL NOSHR NOEXE NORD  NOWRT NOVEC BYTE  
+$ABS$                           00000000  (    0.)  01 (  1.)  NOPIC   USR   CON   ABS   LCL NOSHR   EXE   RD    WRT NOVEC BYTE  
+RODATA                          00000064  (  100.)  02 (  2.)    PIC   USR   CON   REL   LCL   SHR NOEXE   RD  NOWRT NOVEC WORD  
+DATA                            00000210  (  528.)  03 (  3.)    PIC   USR   CON   REL   LCL NOSHR NOEXE   RD    WRT NOVEC WORD  
+CODE                            00000196  (  406.)  04 (  4.)    PIC   USR   CON   REL   LCL   SHR   EXE   RD  NOWRT NOVEC LONG  
+REVERSE                         - String reversing - VAX MACRO            2-JAN-2018 22:11:33  VAX/VMS Macro V04-00        Page   5
+Cross reference                                                           2-JAN-2018 22:11:25  [JGUILLAUMES.ASM]REVERSE.MAR;47   (1)
+
+
+                                             +------------------------+
+                                             ! Symbol Cross Reference !
+                                             +------------------------+
+
+SYMBOL                          VALUE        DEFINITION      REFERENCES... 
+------                          -----        ----------      ------------- 
+$$T1                           =00000001     114    (1)      101    (1)      114    (1)      44     (1)      48     (1)    
+                                                             61     (1)      86     (1)    
+ACABAR                          0000012F-R   107    (1)    #-76     (1)    
+ADEU                            00000014-R   15     (1)      114    (1)      16     (1)    
+BLANK                           00000063-R   23     (1)    
+BUFFER                          00000010-R   31     (1)      39     (1)      61     (1)      71     (1)    
+BUFOUT                          00000110-R   32     (1)      101    (1)      40     (1)      73     (1)    
+BUFSIZ                         =00000100     7      (1)      31     (1)      32     (1)    #-39     (1)    #-40     (1)    
+                                                           #-61     (1)    
+CHIN                            00000000-R   27     (1)    #-119    (1)      44     (1)    #-61     (1)    
+CHOUT                           00000004-R   28     (1)    #-101    (1)    #-114    (1)    #-120    (1)      48     (1)    
+                                                           #-86     (1)    
+ERRASSIGN                       0000004C-R   52     (1)    #-45     (1)    #-49     (1)    
+ERRGET                          0000008F-R   67     (1)    #-62     (1)    #-64     (1)    
+ERROR                           0000018A-R   124    (1)    #-102    (1)    #-104    (1)    #-115    (1)    #-117    (1)    
+                                                           #-53     (1)    #-67     (1)    #-91     (1)    
+GETLINIA                        0000004F-R   55     (1)    #-105    (1)    #-50     (1)    
+INVER                           0000002A-R   18     (1)      19     (1)      86     (1)    
+IO$_READPROMPT                 =00000037                   #-61     (1)    
+IO$_WRITEVBLK                  =00000030                   #-101    (1)    #-114    (1)    #-86     (1)    
+IOSB                            00000008-R   29     (1)      101    (1)    #-103    (1)      114    (1)    #-116    (1)    
+                                                             61     (1)    #-63     (1)    #-69     (1)      86     (1)    
+                                                           #-88     (1)    
+LADEU                          =00000016     16     (1)    #-114    (1)    
+LIB$STOP                        00000000-XR                  126    (1)    
+LINVER                         =00000014     19     (1)    #-86     (1)    
+LOOP                            000000B1-R   77     (1)    #-78     (1)    
+LPROMPT                        =00000014     13     (1)    #-61     (1)    
+OKGET                           00000092-R   69     (1)    #-65     (1)    
+PROMPT                          00000000-R   12     (1)      13     (1)    #-61     (1)    
+REVERSE                         00000000-R   37     (1)    
+SS$_NORMAL                     =00000001                   #-122    (1)    
+START                           00000000-R   37     (1)    
+SYS$ASSIGN                      00000000-XR                  44     (1)      48     (1)    
+SYS$DASSGN                      00000000-XR                  119    (1)      120    (1)    
+SYS$EXIT                        00000000-XR                  122    (1)    
+SYS$QIOW                        00000000-XR                  101    (1)      114    (1)      61     (1)      86     (1)    
+SYSIN                           0000003E-R   21     (1)      44     (1)    
+SYSOUT                          00000050-R   22     (1)      48     (1)    
+REVERSE                         - String reversing - VAX MACRO            2-JAN-2018 22:11:33  VAX/VMS Macro V04-00        Page   6
+Cross reference                                                           2-JAN-2018 22:11:25  [JGUILLAUMES.ASM]REVERSE.MAR;47   (1)
+
+
+                                             +------------------------+
+                                             ! Macros Cross Reference !
+                                             +------------------------+
+
+MACRO             SIZE          DEFINITION       REFERENCES... 
+-----             ----          ----------       ------------- 
+$ASNPUSH          1             44     (1)       44     (1)       48     (1)    
+$ASSIGN_S         1             43     (1)       43     (1)       47     (1)    
+$DASSGN_S         1             119    (1)       119    (1)       120    (1)    
+$DEFINI           1             4      (1)       4      (1)       5      (1)    
+$EXIT_S           1             122    (1)       122    (1)    
+$IODEF            15            5      (1)       5      (1)    
+$PUSHADR          1             44     (1)       101    (1)       114    (1)       44     (1)       48     (1)       61     (1)    
+                                                 86     (1)    
+$PUSHTWO          1             61     (1)       101    (1)       114    (1)       61     (1)       86     (1)    
+$QIOPUSH          1             61     (1)       101    (1)       114    (1)       61     (1)       86     (1)    
+$QIOW_S           1             57     (1)       109    (1)       57     (1)       81     (1)       96     (1)    
+$SSDEF            21            4      (1)       4      (1)    
+
+                                             +------------------------+
+                                             ! Performance indicators !
+                                             +------------------------+
+
+Phase                    Page faults    CPU Time       Elapsed Time   
+-----                    -----------    --------       ------------   
+Initialization                   25     00:00:00.01    00:00:00.03
+Command processing              884     00:00:00.12    00:00:00.12
+Pass 1                          347     00:00:04.12    00:00:04.35
+Symbol table sort                 0     00:00:00.43    00:00:00.43
+Pass 2                           31     00:00:00.24    00:00:00.26
+Symbol table output               2     00:00:00.01    00:00:00.01
+Psect synopsis output             2     00:00:00.01    00:00:00.01
+Cross-reference output            4     00:00:00.04    00:00:00.04
+Assembler run totals           1297     00:00:04.98    00:00:05.25
+
+The working set limit was 1900 pages.
+39466 bytes (78 pages) of virtual memory were used to buffer the intermediate code.
+There were 40 pages of symbol table space allocated to hold 758 non-local and 2 local symbols.
+128 source lines were read in Pass 1, producing 21 object records in Pass 2.
+22 pages of virtual memory were used to define 16 macros.
+
+                                            +--------------------------+
+                                            ! Macro library statistics !
+                                            +--------------------------+
+
+Macro library name                           Macros defined      
+------------------                           --------------      
+SYS$SYSROOT:[SYSLIB]STARLET.MLB;2                      13        
+
+871 GETS were required to define 13 macros.
+
+There were no errors, warnings or information messages.
+
+MACRO/LIST/CROSS REVERSE

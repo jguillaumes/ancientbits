@@ -1,0 +1,11 @@
+RT-11 LINK  V05.44 	Load Map 	Sunday 31-Dec-95 00:17  Page 1
+REVERS.SAV   	Title:	REVERS	Ident:	01.00 	
+
+Section  Addr	Size	Global	Value	Global	Value	Global	Value
+
+ . ABS.	 000000	001000 = 256.    words  (RW,I,GBL,ABS,OVR)
+ STATIC	 001000	000073 = 30.     words  (RO,D,LCL,REL,CON)
+ DATA  	 001074	000256 = 87.     words  (RW,D,LCL,REL,CON)
+ TEXT  	 001352	000226 = 75.     words  (RO,I,LCL,REL,CON)
+
+Transfer address = 001352, High limit = 001576 = 447.    words

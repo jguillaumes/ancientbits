@@ -1,0 +1,95 @@
+	.TITLE	REVERS - Invertir cadena de text usant stack
+	.IDENT	/01.00/
+	.MCALL	.TTYOUT,.TTYIN,.EXIT 
+
+	; Constants globals
+$JSW 	=: 44
+TTLC$	=: 040000
+
+	; Dades estatiques
+	.PSECT	STATIC,RO,D,LCL,REL,CON
+
+HELLO:	.ASCII	/Inversor de cadenes    /
+LHELLO = .-HELLO
+PROMPT:	.ASCII	/Entra una linia:	/
+LPROMPT = .-PROMPT
+INVER:	.ASCII	/Linia invertida:	/
+LINVER = .- INVER
+CRLF:	.BYTE	^X0D
+	.BYTE	^X0A
+LCRLF = .- CRLF
+
+	; Dades modificables
+	.PSECT	DATA,RW,D,LCL,REL,CON
+
+LBUFFER = 256
+BUFFER:	.BLKB	LBUFFER
+
+
+	; Codi
+	.PSECT	TEXT,RO,I,LCL,REL,CON
+	
+START:	;BPT
+	BIS	#TTLC$,$JSW	; Desactivar uppercase
+
+	MOV	#HELLO,R1	; Mostrar salutacio
+	MOV	#LHELLO,R2
+	JSR	PC,LINOUT
+	JSR	PC,LBREAK
+
+	MOV	#BUFFER,R1	; Netejar buffer. R1 => @BUFFER
+	MOV	#LBUFFER,R2	; R2 => Grandaria buffer
+	CLR	R0		; R0 => zero
+NETEJA:	MOVB	R0,(R1)+	; Netejar byte
+	SOB	R2,NETEJA	; Mes espai?
+
+	MOV	#PROMPT,R1	; Mostrar prompt
+	MOV	#LPROMPT,R2
+	JSR	PC,LINOUT
+
+	MOV	#BUFFER,R1	; R1 apunta a buffer d'entrada
+	CLR	R2		; R2 => comptador de caracters
+LLEGIR:	.TTYIN			; LLegir caracter a R0
+	CMPB	R0,#^X0D	; Retorn de carro?
+	BEQ	GETLF		; Si, consumir LF
+	MOVB	R0,(R1)+	; No, desar caracter
+	INC	R2		; Incrementar comptador
+	CMP	R2,#LBUFFER	; Capacitat maxima?
+	BGT	PLE		; Si, acabar
+	BR	LLEGIR		; No: seg caracter
+GETLF:
+	.TTYIN			; Consumir LF
+PLE:				; Buffer ple, acabar aqui
+	MOV	R2,-(SP)	; Desar grandaria a stack
+	
+	MOV	#INVER,R1
+	MOV	#LINVER,R2
+	JSR	PC,LINOUT
+
+	MOV	(SP)+,R2
+
+	MOV	#BUFFER,R1	; Recuperar adreca de buffer
+	ADD	R2,R1		; R1 => Final de buffer
+OUTR:	.TTYOUT	-(R1)		; Imprimir caracter a final
+	SOB	R2,OUTR		; Seguent
+	JSR	PC,LBREAK	; Final de linia
+
+	.EXIT
+
+; 	Subrutina per imprimir una linia
+;	L'adreca ha d'estar a R1, longitud a R2
+;	Destrueix R1 i R2
+
+LINOUT:	CMP	R2,#0
+	BLE	20$
+10$:	.TTYOUT	(R1)+
+	SOB	R2,10$
+20$:	RTS	PC	
+
+
+LBREAK:	MOV	#CRLF,R1
+	.TTYOUT	(R1)+
+	.TTYOUT	(R1)+
+	RTS	PC
+
+	.END START

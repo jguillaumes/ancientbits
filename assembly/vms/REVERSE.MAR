@@ -1,0 +1,129 @@
+	.TITLE	REVERSE	- String reversing - VAX MACRO
+	.IDENT	/02-00/
+
+	$ssdef			; Status codes
+	$iodef			; QIOW definition
+
+	BUFSIZ==256		; Buffer size
+
+	; Non-modifiable data	
+	.PSECT	RODATA,NOEXE,NOWRT,PIC,SHR,WORD
+
+PROMPT:	.ASCII	/Input a text line:  /
+	LPROMPT = .-PROMPT
+
+ADEU:	.ASCID	/Finished	     /
+	LADEU = .-ADEU
+
+INVER:	.ASCII	/Reversed line:      /
+	LINVER = .-INVER
+
+SYSIN:	.ASCID	/SYS$INPUT:/			; Input channel device
+SYSOUT:	.ASCID	/SYS$OUTPUT:/			; Output channel device
+BLANK:	.BYTE	^X20
+
+	; Read-Write data
+	.PSECT	DATA,NOEXE,WRT,PIC,NOSHR,WORD
+CHIN:	.LONG	0				; Input channel
+CHOUT:	.LONG	0				; Output channel
+IOSB:	.LONG	0				; I/O Status block
+	.LONG	0				;
+BUFFER:	.BLKB	BUFSIZ				; Input buffer
+BUFOUT:	.BLKB	BUFSIZ				; Output buffer
+
+	; Executable code
+	.PSECT	CODE,EXE,PIC,NOWRT,SHR,LONG
+
+START:	.ENTRY  REVERSE,^M<>
+
+	MOVC5	#0,(r0),#32,#BUFSIZ,BUFFER	; Zero-fill input buffer
+	MOVC5	#0,(r0),#32,#BUFSIZ,BUFOUT	; Zero-fill output buffer
+
+	$ASSIGN_S -				; Open input channel
+		devnam=SYSIN,-
+		chan=CHIN
+	BLBC	R0,ERRASSIGN
+	$ASSIGN_S -				; Open output channel
+		devnam=SYSOUT,-
+		chan=CHOUT
+	BLBC	R0,ERRASSIGN
+	BRB	GETLINIA
+
+ERRASSIGN:					; Error handling in $ASSIGM
+	BRW	ERROR
+
+GETLINIA:					; Channel assigned ok!	
+	$QIOW_S -				; Get input line
+		chan=CHIN,-
+		func=#IO$_READPROMPT,-
+		iosb=IOSB,-
+		p1=BUFFER,p2=#BUFSIZ,-
+		p5=#PROMPT,p6=#LPROMPT
+	BLBC	R0,ERRGET	
+	MOVZWL	IOSB,R0
+	BLBC	R0,ERRGET
+	BRB	OKGET
+
+ERRGET:	BRW	ERROR
+
+OKGET:	MOVZWL	IOSB+2,R2			; R2 = read byte count
+	PUSHR	#^M<R2>				; Save number of bytes to be used afterward
+	MOVAB	BUFFER,R1			; R1 => @Input buffer
+	ADDW	R2,R1				; R1 => @End of input string
+	MOVAB	BUFOUT,R3			; R3 => @Output buffer
+	
+	CMPW	R2,#0				; Empty buffer?
+	BEQL	ACABAR				; Yes: finish
+LOOP:	MOVB	-(R1),(R3)+			; Move in reverse order
+	SOBGEQ	R2,LOOP				; Repeat for all the string
+
+	$QIOW_S	-				; Output "reversed" label
+		chan=CHOUT,-
+		func=#IO$_WRITEVBLK,-
+		iosb=IOSB,-
+		p1=INVER,-
+		p2=#LINVER,-
+		p4=#^X00000024
+	BLBC	R0,100$
+	MOVZWL	IOSB,R0
+	BLBS	R0,200$
+
+100$:	BRW	ERROR
+
+200$:
+	POPR	#^M<R2>				; Get back string length from stack	
+	$QIOW_S	-				; Output reversed string
+		chan=CHOUT,-
+		func=#IO$_WRITEVBLK,-
+		iosb=IOSB,-
+		p1=BUFOUT,-
+		p2=R2,-
+		p4=#^X02000000
+	BLBC	R0,ERROR
+	MOVZWL	IOSB,R0
+	BLBC	R0,ERROR
+	BRW	GETLINIA			; Go back to read one more line
+
+ACABAR:						; End of work
+	$QIOW_S	-				; Show goodbye message
+		chan=CHOUT,-
+		func=#IO$_WRITEVBLK,-
+		iosb=IOSB,-
+		p1=ADEU,-
+		p2=#LADEU,-
+		p4=#^X00000020
+	BLBC	R0,ERROR
+	MOVZWL	IOSB,R0
+	BLBC	R0,ERROR
+
+	$DASSGN_S chan=CHIN			; Close input channel
+	$DASSGN_S chan=CHOUT			; Close output channel
+
+	$exit_s	#SS$_NORMAL			; End OK
+
+ERROR:	MOVL	R0,R2				; Error handling
+	PUSHL	R0
+	CALLS	#1,G^LIB$STOP			; Force error exit
+
+	.END 	START
+
