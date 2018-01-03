@@ -1,0 +1,297 @@
+1                                               EXTERNAL SYMBOL DICTIONARY
+-SYMBOL   TYPE  ID   ADDR  LENGTH LDID
+0          PC  0001 000000 000000
+ REVERS    SD  0002 000000 0003D8
+1         STRING REVERSING IN 360 ASM
+-  LOC  OBJECT CODE    ADDR1 ADDR2  STMT   SOURCE STATEMENT
+0
+                                       3         COPY REGS
+                             00000     4 R0 EQU 0
+                             00001     5 R1 EQU 1
+                             00002     6 R2 EQU 2
+                             00003     7 R3 EQU 3
+                             00004     8 R4 EQU 4
+                             00005     9 R5 EQU 5
+                             00006    10 R6 EQU 6
+                             00007    11 R7 EQU 7
+                             00008    12 R8 EQU 8
+                             00009    13 R9 EQU 9
+                             0000A    14 R10 EQU 10
+                             0000B    15 R11 EQU 11
+                             0000C    16 R12 EQU 12
+                             0000D    17 R13 EQU 13
+                             0000E    18 R14 EQU 14
+                             0000F    19 R15 EQU 15
+                             00050    20 BUFSIZ  EQU    80
+
+ 000000                               22 REVERS  CSECT
+                                      23         SAVE   (14,12)             SAVE
+ 000000                               24+         DS    0H
+ 000000 90EC D00C      0000C          25+         STM   14,12,12(13)
+ 000004 05C0                          26         BALR   R12,0               GET
+                             00006    27         USING  *,R12
+ 000006 4120 C0B2      000B8          28         LA     R2,SAVEA            GET
+ 00000A 5020 D008      00008          29         ST     R2,8(,R13)          CHAI
+ 00000E 50D0 C0B6      000BC          30         ST     R13,SAVEA+4         ...
+ 000012 18D2                          31         LR     R13,R2              GET
+                                      32 *
+                                      33         OPEN   (SYSIN,(INPUT))     OPEN
+ 000014                               34+         CNOP  0,4
+ 000014 4510 C016      0001C          35+         BAL   1,*+8
+ 000018 80                            36+         DC    AL1(128)
+ 000019 000314                        37+         DC    AL3(SYSIN)
+ 00001C 0A13                          38+         SVC   19
+                                      39         OPEN   (SYSOUT,(OUTPUT))   OPEN
+ 00001E 0700                          40+         CNOP  0,4
+ 000020 4510 C022      00028          41+         BAL   1,*+8
+ 000024 8F                            42+         DC    AL1(143)
+ 000025 000374                        43+         DC    AL3(SYSOUT)
+ 000028 0A13                          44+         SVC   19
+                                      45 *
+                                      46         PUT    SYSOUT,HELLO        PRIN
+ 00002A 4110 C36E      00374          47+         LA    1,SYSOUT
+ 00002E 4100 C0FA      00100          48+         LA    0,HELLO
+ 000032 58F0 1030      00030          49+         L     15,48(0,1)
+ 000036 05EF                          50+         BALR  14,15
+                                      51 LOOP    GET    SYSIN,BUFFIN        READ
+ 000038 4110 C30E      00314          52+LOOP     LA    1,SYSIN
+ 00003C 4100 C194      0019A          53+         LA    0,BUFFIN
+ 000040 58F0 1030      00030          54+         L     15,48(0,1)
+ 000044 05EF                          55+         BALR  14,15
+1         STRING REVERSING IN 360 ASM
+-  LOC  OBJECT CODE    ADDR1 ADDR2  STMT   SOURCE STATEMENT
+0                                     56         PUT    SYSOUT,INLINE       ECHO
+ 000046 4110 C36E      00374          57+         LA    1,SYSOUT
+ 00004A 4100 C17F      00185          58+         LA    0,INLINE
+ 00004E 58F0 1030      00030          59+         L     15,48(0,1)
+ 000052 05EF                          60+         BALR  14,15
+
+ 000054 4120 004F      0004F          62         LA     R2,BUFSIZ-1         R2:
+ 000058 4130 0000      00000          63         LA     R3,0                R3:
+ 00005C 4140 C194      0019A          64         LA     R4,BUFFIN
+ 000060 1A42                          65         AR     R4,R2               R4:
+ 000062 9540 4000      00000          66 SKIPB   CLI    0(R4),X'40'         DOES
+ 000066 4770 C06A      00070          67         BNE    ILOOP               NO:
+ 00006A 0640                          68         BCTR   R4,0
+ 00006C 4620 C05C      00062          69         BCT    R2,SKIPB            YES:
+
+ 000070 4312 C194      0019A          71 ILOOP   IC     R1,BUFFIN(R2)       READ
+ 000074 4213 C219      0021F          72         STC    R1,BUFOUT(R3)       STOR
+ 000078 4133 0001      00001          73         LA     R3,1(R3)            INCR
+ 00007C 4620 C06A      00070          74         BCT    R2,ILOOP            PROC
+ 000080 4312 C194      0019A          75         IC     R1,BUFFIN(R2)       COPY
+ 000084 4213 C219      0021F          76         STC    R1,BUFOUT(R3)       (AT
+                                      77 *
+                                      78         PUT    SYSOUT,OUTLINE      DISP
+ 000088 4110 C36E      00374          79+         LA    1,SYSOUT
+ 00008C 4100 C204      0020A          80+         LA    0,OUTLINE
+ 000090 58F0 1030      00030          81+         L     15,48(0,1)
+ 000094 05EF                          82+         BALR  14,15
+ 000096 47F0 C032      00038          83         B      LOOP                AND
+                                      84 *
+                                      85 HNDEOF  PUT    SYSOUT,BYE          DISP
+ 00009A 4110 C36E      00374          86+HNDEOF   LA    1,SYSOUT
+ 00009E 4100 C289      0028F          87+         LA    0,BYE
+ 0000A2 58F0 1030      00030          88+         L     15,48(0,1)
+ 0000A6 05EF                          89+         BALR  14,15
+                                      90 *
+ 0000A8 58D0 C0B6      000BC          91         L      R13,SAVEA+4         RECO
+ 0000AC 98EC D00C      0000C          92         LM     R14,R12,12(R13)     RECO
+ 0000B0 41F0 0000      00000          93         LA     R15,0               CLEA
+ 0000B4 07FE                          94         BR     R14                 ...
+
+ 0000B8                               96         DS     0F
+ 0000B8                               97 SAVEA   DS     18F         OWN SAVE ARE
+ 000100 40D9C5E5C5D9E2C9              98 HELLO   DC     CL133' REVERSING STRING
+ 000185                               99 INLINE  DS     0CL133
+ 000185 40                           100 SPACE   DC     C' '
+ 000186 C5D5E3C5D9C5C440             101 PROMPT  DC     CL20'ENTERED STRING:
+ 00019A 4040404040404040             102 BUFFIN  DC     CL(BUFSIZ)' '
+ 0001EA 4040404040404040             103         DC     CL(133-(BUFSIZ+21))' '
+ 00020A                              104 OUTLINE DS     0CL133
+ 00020A 40                           105         DC     C' '
+ 00020B D9C5E5C5D9E2C5C4             106 INVER   DC     CL20'REVERSED STRING:
+ 00021F 4040404040404040             107 BUFOUT  DC     CL(BUFSIZ)' '
+ 00026F 4040404040404040             108         DC     CL(133-(BUFSIZ+21))' '
+ 00028F 40C6C9D5C9E2C8C5             109 BYE     DC     CL133' FINISHED'
+                                     110 *
+1         STRING REVERSING IN 360 ASM
+-  LOC  OBJECT CODE    ADDR1 ADDR2  STMT   SOURCE STATEMENT
+0                                    111 SYSIN   DCB    RECFM=F,
+                                                        DSORG=PS,
+                                                        LRECL=BUFSIZ,
+                                                        MACRF=(GM),
+                                                        EODAD=HNDEOF,
+                                                        EROPT=ACC,
+                                                        DDNAME=SYSIN
+0
+                                     113+*                       DATA CONTROL BL
+                                     114+*
+ 000314                              115+SYSIN    DC    0F'0'
+
+                                     117+*                       DIRECT ACCESS D
+
+ 000314 0000000000000000             119+         DC    BL16'0'
+ 000324 00000000                     120+         DC    A(0)
+
+                                     122+*                       COMMON ACCESS M
+
+ 000328 00                           124+         DC    AL1(0)
+ 000329 000001                       125+         DC    AL3(1)
+ 00032C 0000                         126+         DC    AL2(0)             BUFL
+ 00032E 4000                         127+         DC    BL2'0100000000000000'
+                                        +
+ 000330 00000001                     128+         DC    A(1)
+
+                                     130+*                       FOUNDATION EXTE
+
+ 000334 00                           132+         DC    BL1'00000000'
+ 000335 00009A                       133+         DC    AL3(HNDEOF)
+ 000338 80                           134+         DC    BL1'10000000'
+                                        +
+ 000339 000000                       135+         DC    AL3(0)
+
+                                     137+*                       FOUNDATION BLOC
+
+ 00033C E2E8E2C9D5404040             139+         DC    CL8'SYSIN'
+ 000344 02                           140+         DC    BL1'00000010'
+ 000345 00                           141+         DC    BL1'00000000'
+ 000346 5000                         142+         DC    BL2'0101000000000000'
+                                        +
+                                        +
+
+                                     144+*                       BSAM-BPAM-QSAM
+
+ 000348 00                           146+         DC    BL1'00000000'
+                                        +
+ 000349 000001                       147+         DC    AL3(1)
+ 00034C 00000001                     148+         DC    A(1)
+ 000350 0000                         149+         DC    H'0'
+ 000352 0000                         150+         DC    AL2(0)
+ 000354 00000000                     151+         DC    F'0'
+ 000358 00000001                     152+         DC    A(1)
+ 00035C 00                           153+         DC    AL1(0)
+1         STRING REVERSING IN 360 ASM
+-  LOC  OBJECT CODE    ADDR1 ADDR2  STMT   SOURCE STATEMENT
+000035D 000001                       154+         DC    AL3(1)
+
+                                     156+*                            QSAM INTER
+
+ 000360 00000001                     158+         DC    A(1)
+ 000364 0000                         159+         DC    H'0'
+ 000366 0050                         160+         DC    AL2(BUFSIZ)    LRECL
+ 000368 80                           161+         DC    BL1'10000000'
+ 000369 000001                       162+         DC    AL3(1)
+ 00036C 00000000                     163+         DC    F'0'
+ 000370 00000001                     164+         DC    A(1)
+                                     165 SYSOUT  DCB    RECFM=FBA,
+                                                        DSORG=PS,
+                                                        LRECL=133,
+                                                        MACRF=(PM),
+                                                        DDNAME=SYSOUT
+0
+                                     167+*                       DATA CONTROL BL
+                                     168+*
+ 000374                              169+SYSOUT   DC    0F'0'
+
+                                     171+*                       DIRECT ACCESS D
+
+ 000374 0000000000000000             173+         DC    BL16'0'
+ 000384 00000000                     174+         DC    A(0)
+
+                                     176+*                       COMMON ACCESS M
+
+ 000388 00                           178+         DC    AL1(0)
+ 000389 000001                       179+         DC    AL3(1)
+ 00038C 0000                         180+         DC    AL2(0)             BUFL
+ 00038E 4000                         181+         DC    BL2'0100000000000000'
+                                        +
+ 000390 00000001                     182+         DC    A(1)
+
+                                     184+*                       FOUNDATION EXTE
+
+ 000394 00                           186+         DC    BL1'00000000'
+ 000395 000001                       187+         DC    AL3(1)
+ 000398 94                           188+         DC    BL1'10010100'
+                                        +
+ 000399 000000                       189+         DC    AL3(0)
+
+                                     191+*                       FOUNDATION BLOC
+
+ 00039C E2E8E2D6E4E34040             193+         DC    CL8'SYSOUT'
+ 0003A4 02                           194+         DC    BL1'00000010'
+ 0003A5 00                           195+         DC    BL1'00000000'
+ 0003A6 0050                         196+         DC    BL2'0000000001010000'
+                                        +
+                                        +
+
+                                     198+*                       BSAM-BPAM-QSAM
+
+1         STRING REVERSING IN 360 ASM
+-  LOC  OBJECT CODE    ADDR1 ADDR2  STMT   SOURCE STATEMENT
+00003A8 00                           200+         DC    BL1'00000000'
+                                        +
+ 0003A9 000001                       201+         DC    AL3(1)
+ 0003AC 00000001                     202+         DC    A(1)
+ 0003B0 0000                         203+         DC    H'0'
+ 0003B2 0000                         204+         DC    AL2(0)
+ 0003B4 00000000                     205+         DC    F'0'
+ 0003B8 00000001                     206+         DC    A(1)
+ 0003BC 00                           207+         DC    AL1(0)
+ 0003BD 000001                       208+         DC    AL3(1)
+
+                                     210+*                            QSAM INTER
+
+ 0003C0 00000001                     212+         DC    A(1)
+ 0003C4 0000                         213+         DC    H'0'
+ 0003C6 0085                         214+         DC    AL2(133)       LRECL
+ 0003C8 00                           215+         DC    BL1'00000000'
+ 0003C9 000001                       216+         DC    AL3(1)
+ 0003CC 00000000                     217+         DC    F'0'
+ 0003D0 00000001                     218+         DC    A(1)
+ 0003D8                              219         LTORG
+                                     220         END
+1                                                  RELOCATION DICTIONARY
+-POS.ID   REL.ID   FLAGS   ADDRESS
+0 0002     0002      08     000019
+  0002     0002      08     000025
+  0002     0002      08     000335
+
+1                                                  CROSS-REFERENCE
+-SYMBOL    LEN   VALUE   DEFN    REFERENCES
+0BUFFIN   00080 0000019A 00102  00053 00064 00071 00075
+ BUFOUT   00080 0000021F 00107  00072 00076
+ BUFSIZ   00001 00000050 00020  00062 00102 00103 00107 00108 00160
+ BYE      00133 0000028F 00109  00087
+ HELLO    00133 00000100 00098  00048
+ HNDEOF   00004 0000009A 00086  00133
+ ILOOP    00004 00000070 00071  00067 00074
+ INLINE   00133 00000185 00099  00058
+ LOOP     00004 00000038 00052  00083
+ OUTLINE  00133 0000020A 00104  00080
+ R1       00001 00000001 00005  00071 00072 00075 00076
+ R12      00001 0000000C 00016  00026 00027 00092
+ R13      00001 0000000D 00017  00029 00030 00031 00091 00092
+ R14      00001 0000000E 00018  00092 00094
+ R15      00001 0000000F 00019  00093
+ R2       00001 00000002 00006  00028 00029 00031 00062 00065 00069 00071 00074
+ R3       00001 00000003 00007  00063 00072 00073 00073 00076
+ R4       00001 00000004 00008  00064 00065 00066 00068
+ SAVEA    00004 000000B8 00097  00028 00030 00091
+ SKIPB    00004 00000062 00066  00069
+ SYSIN    00004 00000314 00115  00037 00052
+ SYSOUT   00004 00000374 00169  00043 00047 00057 00079 00086
+1                                                  ASSEMBLER DIAGNOSTICS AND STA
+-
+0NO STATEMENTS FLAGGED IN THIS ASSEMBLY
+ HIGHEST SEVERITY WAS    0
+ OPTIONS FOR THIS ASSEMBLY
+   ALIGN, ALOGIC, BUFSIZE(STD), DECK, ESD, FLAG(0), LINECOUNT(55), LIST, NOMCALL
+   NOMLOGIC, NONUMBER, OBJECT, NORENT, RLD, NOSTMT, NOLIBMAC, NOTERMINAL, NOTEST
+   SYSPARM()
+ WORK FILE BUFFER SIZE/NUMBER =19066/ 1
+ TOTAL RECORDS READ FROM SYSTEM INPUT         76
+ TOTAL RECORDS READ FROM SYSTEM LIBRARY     3131
+ TOTAL RECORDS PUNCHED                        20
+ TOTAL RECORDS PRINTED                       296
+
