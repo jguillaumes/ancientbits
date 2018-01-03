@@ -1,135 +1,163 @@
-REVERS - Invertir cadena de tex	MACRO V05.06  Sunday 31-Dec-95 00:17  Page 1
+REVERS - Reverse string using s	MACRO V05.06  Wednesday 03-Jan-96 00:34  Page 1
 
 
-      1						.TITLE	REVERS - Invertir cadena de text usant stack
-      2						.IDENT	/01.00/
+      1						.TITLE	REVERS - Reverse string using stack
+      2						.IDENT	/01.01/
       3						.MCALL	.TTYOUT,.TTYIN,.EXIT
       4
-      5						; Constants globals
-      6		000044 			$JSW 	=: 44
-      7		040000 			TTLC$	=: 040000
-      8
-      9						; Dades estatiques
-     10	000000					.PSECT	STATIC,RO,D,LCL,REL,CON
-     11
-     12	000000	   111 	   156 	   166 	HELLO:	.ASCII	/Inversor de cadenes    /
-	000003	   145 	   162 	   163
-	000006	   157 	   162 	   040
-	000011	   144 	   145 	   040
-	000014	   143 	   141 	   144
-	000017	   145 	   156 	   145
-	000022	   163 	   040 	   040
-	000025	   040 	   040
-     13		000027 			LHELLO = .-HELLO
-     14	000027	   105 	   156 	   164 	PROMPT:	.ASCII	/Entra una linia:	/
-	000032	   162 	   141 	   040
-	000035	   165 	   156 	   141
-	000040	   040 	   154 	   151
-	000043	   156 	   151 	   141
-	000046	   072 	   011
-     15		000021 			LPROMPT = .-PROMPT
-     16	000050	   114 	   151 	   156 	INVER:	.ASCII	/Linia invertida:	/
-	000053	   151 	   141 	   040
-	000056	   151 	   156 	   166
-	000061	   145 	   162 	   164
-	000064	   151 	   144 	   141
-	000067	   072 	   011
-     17		000021 			LINVER = .- INVER
-     18	000071	   015 			CRLF:	.BYTE	^X0D
-     19	000072	   012 				.BYTE	^X0A
-     20		000002 			LCRLF = .- CRLF
+      5						; Global constants
+      6		000044 			$JSW 	=: 44			; JSW address
+      7		040000 			TTLC$	=: 040000		; Allow lowercase bit
+      8		000256 			LBUFFER = 256			; Buffer length
+      9
+     10						; Read-only data
+     11	000000					.PSECT	RODATA,RO,D,LCL,REL,CON
+     12
+     13	000000	   123 	   164 	   162 	HELLO:	.ASCII	/String reverser/
+	000003	   151 	   156 	   147
+	000006	   040 	   162 	   145
+	000011	   166 	   145 	   162
+	000014	   163 	   145 	   162
+     14		000017 			LHELLO = .-HELLO
+     15
+     16	000017	   105 	   156 	   164 	PROMPT:	.ASCII	/Enter a line:	/
+	000022	   145 	   162 	   040
+	000025	   141 	   040 	   154
+	000030	   151 	   156 	   145
+	000033	   072 	   011
+     17		000016 			LPROMPT = .-PROMPT
+     18
+     19	000035	   111 	   156 	   166 	INVER:	.ASCII	/Inverted line:	/
+	000040	   145 	   162 	   164
+	000043	   145 	   144 	   040
+	000046	   154 	   151 	   156
+	000051	   145 	   072 	   011
+     20		000017 			LINVER = .- INVER
      21
-     22						; Dades modificables
-     23	000000					.PSECT	DATA,RW,D,LCL,REL,CON
+     22	000054	   106 	   151 	   156 	FINISH:	.ASCII	/Finished.      /
+	000057	   151 	   163 	   150
+	000062	   145 	   144 	   056
+	000065	   040 	   040 	   040
+	000070	   040 	   040 	   040
+     23		000017 			LFINISH = .-FINISH
      24
-     25		000256 			LBUFFER = 256
-     26	000000				BUFFER:	.BLKB	LBUFFER
-     27
+     25	000073	   015 			CRLF:	.BYTE	^X0D
+     26	000074	   012 				.BYTE	^X0A
+     27		000002 			LCRLF = .- CRLF
      28
-     29						; Codi
-     30	000000					.PSECT	TEXT,RO,I,LCL,REL,CON
+     29						; Read-write data
+     30	000000					.PSECT	DATA,RW,D,LCL,REL,CON
      31
-     32	000000				START:	;BPT
-     33	000000	052767 	040000 	000044'		BIS	#TTLC$,$JSW	; Desactivar uppercase
-     34
-     35	000006	012701 	000000'			MOV	#HELLO,R1	; Mostrar salutacio
-     36	000012	012702 	000027 			MOV	#LHELLO,R2
-     37	000016	004767 	000142 			JSR	PC,LINOUT
-     38	000022	004767 	000156 			JSR	PC,LBREAK
+     32	000000				BUFFER:	.BLKB	LBUFFER
+     33
+     34						; Code
+     35	000000					.PSECT	CODE,RO,I,LCL,REL,CON
+     36
+     37	000000				START:
+     38	000000	052767 	040000 	000044'		BIS	#TTLC$,$JSW	; Allow lowercase characters
      39
-     40	000026	012701 	000000'			MOV	#BUFFER,R1	; Netejar buffer. R1 => @BUFFER
-REVERS - Invertir cadena de tex	MACRO V05.06  Sunday 31-Dec-95 00:17  Page 1-1
+     40	000006	012701 	000000'			MOV	#HELLO,R1	; Display welcome string
+     41	000012	012702 	000017 			MOV	#LHELLO,R2
+REVERS - Reverse string using s	MACRO V05.06  Wednesday 03-Jan-96 00:34  Page 1-1
 
 
-     41	000032	012702 	000256 			MOV	#LBUFFER,R2	; R2 => Grandaria buffer
-     42	000036	005000 				CLR	R0		; R0 => zero
-     43	000040	110021 			NETEJA:	MOVB	R0,(R1)+	; Netejar byte
-     44	000042	077202 				SOB	R2,NETEJA	; Mes espai?
-     45
-     46	000044	012701 	000027'			MOV	#PROMPT,R1	; Mostrar prompt
-     47	000050	012702 	000021 			MOV	#LPROMPT,R2
-     48	000054	004767 	000104 			JSR	PC,LINOUT
-     49
-     50	000060	012701 	000000'			MOV	#BUFFER,R1	; R1 apunta a buffer d'entrada
-     51	000064	005002 				CLR	R2		; R2 => comptador de caracters
-     52	000066				LLEGIR:	.TTYIN			; LLegir caracter a R0
-     53	000072	120027 	000015 			CMPB	R0,#^X0D	; Retorn de carro?
-     54	000076	001406 				BEQ	GETLF		; Si, consumir LF
-     55	000100	110021 				MOVB	R0,(R1)+	; No, desar caracter
-     56	000102	005202 				INC	R2		; Incrementar comptador
-     57	000104	020227 	000256 			CMP	R2,#LBUFFER	; Capacitat maxima?
-     58	000110	003003 				BGT	PLE		; Si, acabar
-     59	000112	000765 				BR	LLEGIR		; No: seg caracter
-     60	000114				GETLF:
-     61	000114					.TTYIN			; Consumir LF
-     62	000120				PLE:				; Buffer ple, acabar aqui
-     63	000120	010246 				MOV	R2,-(SP)	; Desar grandaria a stack
-     64
-     65	000122	012701 	000050'			MOV	#INVER,R1
-     66	000126	012702 	000021 			MOV	#LINVER,R2
-     67	000132	004767 	000026 			JSR	PC,LINOUT
-     68
-     69	000136	012602 				MOV	(SP)+,R2
+     42	000016	004767 	000172 			JSR	PC,LINOUT
+     43	000022	004767 	000206 			JSR	PC,LBREAK
+     44
+     45	000026	012701 	000000'			MOV	#BUFFER,R1	; Buffer cleanup. R1 => @BUFFER
+     46	000032	012702 	000256 			MOV	#LBUFFER,R2	; R2 => Buffer size
+     47	000036	005000 				CLR	R0		; R0 => zero
+     48	000040				CLEANUP:
+     49	000040	110021 				MOVB	R0,(R1)+	; Zero bytes
+     50	000042	077202 				SOB	R2,CLEANUP	; Repeat for the whole buffer
+     51
+     52	000044	012701 	000017'		GETLIN:	MOV	#PROMPT,R1	; Display prompt
+     53	000050	012702 	000016 			MOV	#LPROMPT,R2
+     54	000054	004767 	000134 			JSR	PC,LINOUT
+     55
+     56	000060	012701 	000000'			MOV	#BUFFER,R1	; R1 => @Buffer
+     57	000064	005002 				CLR	R2		; R2 => Number of read characters
+     58	000066				GETCHAR:
+     59	000066					.TTYIN			; Read character into R0
+     60	000072	120027 	000015 			CMPB	R0,#^X0D	; Is it a CR?
+     61	000076	001406 				BEQ	GETLF		; Yes, consume LF
+     62	000100	110021 				MOVB	R0,(R1)+	; No, store character in buffer
+     63	000102	005202 				INC	R2		; Increment char counter
+     64	000104	020227 	000256 			CMP	R2,#LBUFFER	; Full?
+     65	000110	003003 				BGT	FULL		; Yes: finish
+     66	000112	000765 				BR	GETCHAR		; No: get more characters
+     67	000114				GETLF:
+     68	000114					.TTYIN			; Consume LF
+     69	000120				FULL:				; Full buffer, let's finish here
      70
-     71	000140	012701 	000000'			MOV	#BUFFER,R1	; Recuperar adreca de buffer
-     72	000144	060201 				ADD	R2,R1		; R1 => Final de buffer
-     73	000146				OUTR:	.TTYOUT	-(R1)		; Imprimir caracter a final
-     74	000154	077204 				SOB	R2,OUTR		; Seguent
-     75	000156	004767 	000022 			JSR	PC,LBREAK	; Final de linia
-     76
-     77	000162					.EXIT
-     78
-     79					; 	Subrutina per imprimir una linia
-     80					;	L'adreca ha d'estar a R1, longitud a R2
-     81					;	Destrueix R1 i R2
-     82
-     83	000164	020227 	000000 		LINOUT:	CMP	R2,#0
-     84	000170	003404 				BLE	20$
-     85	000172				10$:	.TTYOUT	(R1)+
-     86	000200	077204 				SOB	R2,10$
-     87	000202	000207 			20$:	RTS	PC
+     71	000120	020227 	000000 			CMP	R2,#0		; Is the buffer empty?
+     72	000124	001422 				BEQ	BYE		; Yes: finish
+     73
+     74	000126	010246 				MOV	R2,-(SP)	; Save string length into stack
+     75
+     76	000130	012701 	000035'			MOV	#INVER,R1	; Display "Inverted..."
+     77	000134	012702 	000017 			MOV	#LINVER,R2
+     78	000140	004767 	000050 			JSR	PC,LINOUT
+     79
+     80	000144	012602 				MOV	(SP)+,R2	; Restore string length from stack
+     81
+     82	000146	012701 	000000'			MOV	#BUFFER,R1	; R1 => @Buffer
+     83	000152	060201 				ADD	R2,R1		; R1 => @End of string
+     84	000154				OUTR:	.TTYOUT	-(R1)		; Display character pointed by R1
+     85	000162	077204 				SOB	R2,OUTR		; Loop w/decrement pointer and counter
+     86	000164	004767 	000044 			JSR	PC,LBREAK	; Add line break
+     87	000170	000725 				BR	GETLIN		; Get next line
      88
-     89
-     90	000204	012701 	000071'		LBREAK:	MOV	#CRLF,R1
-     91	000210					.TTYOUT	(R1)+
-     92	000216					.TTYOUT	(R1)+
-     93	000224	000207 				RTS	PC
+     89	000172	012701 	000054'		BYE:	MOV	#FINISH,R1	; Display bye message
+     90	000176	012702 	000017 			MOV	#LFINISH,R2
+     91	000202	004767 	000006 			JSR	PC,LINOUT
+     92
+     93	000206	010027 	000000 			MOV	R0,#0
      94
-     95		000000'				.END START
-REVERS - Invertir cadena de tex	MACRO V05.06  Sunday 31-Dec-95 00:17  Page 1-2
+     95	000212					.EXIT
+     96
+     97					;------------------------------------------------------------------------
+     98					; LINOUT: Display a text line
+REVERS - Reverse string using s	MACRO V05.06  Wednesday 03-Jan-96 00:34  Page 1-2
+
+
+     99					;------------------------------------------------------------------------
+    100					; 	Subroutine to display a text line
+    101					;	R1: @Text
+    102					;	R2: Size
+    103					;	R1 and R2 are destroyed
+    104					;
+    105	000214	020227 	000000 		LINOUT:	CMP	R2,#0		; Exit when no more chars to display
+    106	000220	003404 				BLE	20$		;
+    107	000222				10$:	.TTYOUT	(R1)+		; Display character pointed by R1
+    108	000230	077204 				SOB	R2,10$		; Decrement counter
+    109	000232	000207 			20$:	RTS	PC
+    110
+    111					;------------------------------------------------------------------------
+    112					; LBREAK: Output a line break
+    113					; Destroys R1
+    114					;------------------------------------------------------------------------
+    115	000234	012701 	000073'		LBREAK:	MOV	#CRLF,R1	; R1 => '\r\n'
+    116	000240					.TTYOUT	(R1)+		; Output \r
+    117	000246					.TTYOUT	(R1)+		; Output \n
+    118	000254	000207 				RTS	PC
+    119
+    120		000000'				.END START
+REVERS - Reverse string using s	MACRO V05.06  Wednesday 03-Jan-96 00:34  Page 1-3
 Symbol table
 
-BUFFER  000000R     003	LBREAK  000204R     004	LINOUT  000164R     004	NETEJA  000040R     004	START   000000R     004
-CRLF    000071R     002	LBUFFE= 000256   	LINVER= 000021   	OUTR    000146R     004	TTLC$   040000
-GETLF   000114R     004	LCRLF = 000002   	LLEGIR  000066R     004	PLE     000120R     004	$JSW    000044
-HELLO   000000R     002	LHELLO= 000027   	LPROMP= 000021   	PROMPT  000027R     002	...V1 = 000003
-INVER   000050R     002
+BUFFER  000000R     003	FULL    000120R     004	INVER   000035R     002	LHELLO= 000017   	PROMPT  000017R     002
+BYE     000172R     004	GETCHA  000066R     004	LBREAK  000234R     004	LINOUT  000214R     004	START   000000R     004
+CLEANU  000040R     004	GETLF   000114R     004	LBUFFE= 000256   	LINVER= 000017   	TTLC$   040000
+CRLF    000073R     002	GETLIN  000044R     004	LCRLF = 000002   	LPROMP= 000016   	$JSW    000044
+FINISH  000054R     002	HELLO   000000R     002	LFINIS= 000017   	OUTR    000154R     004	...V1 = 000003
+
 
 . ABS.	000000    000	(RW,I,GBL,ABS,OVR)
       	000000    001	(RW,I,LCL,REL,CON)
-STATIC	000073    002	(RO,D,LCL,REL,CON)
+RODATA	000075    002	(RO,D,LCL,REL,CON)
 DATA  	000256    003	(RW,D,LCL,REL,CON)
-TEXT  	000226    004	(RO,I,LCL,REL,CON)
+CODE  	000256    004	(RO,I,LCL,REL,CON)
 Errors detected:  0
 
 *** Assembler statistics
@@ -137,9 +165,9 @@ Errors detected:  0
 
 Work  file  reads: 0
 Work  file writes: 0
-Size of work file: 10656 Words  ( 42 Pages)
+Size of work file: 10637 Words  ( 42 Pages)
 Size of core pool: 22016 Words  ( 86 Pages)
 Operating  system: RT-11
 
-Elapsed time: 00:00:00.05
+Elapsed time: 00:00:00.09
 DK:REVERS,DK:REVERS=DK:REVERS

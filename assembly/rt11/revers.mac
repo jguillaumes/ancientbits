@@ -1,95 +1,121 @@
-	.TITLE	REVERS - Invertir cadena de text usant stack
-	.IDENT	/01.00/
+	.TITLE	REVERS - Reverse string using stack
+	.IDENT	/01.01/
 	.MCALL	.TTYOUT,.TTYIN,.EXIT 
 
-	; Constants globals
-$JSW 	=: 44
-TTLC$	=: 040000
+	; Global constants
+$JSW 	=: 44			; JSW address
+TTLC$	=: 040000		; Allow lowercase bit
+LBUFFER = 256			; Buffer length
 
-	; Dades estatiques
-	.PSECT	STATIC,RO,D,LCL,REL,CON
+	; Read-only data
+	.PSECT	RODATA,RO,D,LCL,REL,CON
 
-HELLO:	.ASCII	/Inversor de cadenes    /
+HELLO:	.ASCII	/String reverser/
 LHELLO = .-HELLO
-PROMPT:	.ASCII	/Entra una linia:	/
+
+PROMPT:	.ASCII	/Enter a line:	/
 LPROMPT = .-PROMPT
-INVER:	.ASCII	/Linia invertida:	/
+
+INVER:	.ASCII	/Inverted line:	/
 LINVER = .- INVER
+
+FINISH:	.ASCII	/Finished.      /
+LFINISH = .-FINISH
+
 CRLF:	.BYTE	^X0D
 	.BYTE	^X0A
 LCRLF = .- CRLF
 
-	; Dades modificables
+	; Read-write data
 	.PSECT	DATA,RW,D,LCL,REL,CON
 
-LBUFFER = 256
 BUFFER:	.BLKB	LBUFFER
 
-
-	; Codi
-	.PSECT	TEXT,RO,I,LCL,REL,CON
+	; Code
+	.PSECT	CODE,RO,I,LCL,REL,CON
 	
-START:	;BPT
-	BIS	#TTLC$,$JSW	; Desactivar uppercase
+START:	
+	BIS	#TTLC$,$JSW	; Allow lowercase characters
 
-	MOV	#HELLO,R1	; Mostrar salutacio
+	MOV	#HELLO,R1	; Display welcome string
 	MOV	#LHELLO,R2
 	JSR	PC,LINOUT
 	JSR	PC,LBREAK
 
-	MOV	#BUFFER,R1	; Netejar buffer. R1 => @BUFFER
-	MOV	#LBUFFER,R2	; R2 => Grandaria buffer
+	MOV	#BUFFER,R1	; Buffer cleanup. R1 => @BUFFER
+	MOV	#LBUFFER,R2	; R2 => Buffer size
 	CLR	R0		; R0 => zero
-NETEJA:	MOVB	R0,(R1)+	; Netejar byte
-	SOB	R2,NETEJA	; Mes espai?
+CLEANUP:	
+	MOVB	R0,(R1)+	; Zero bytes
+	SOB	R2,CLEANUP	; Repeat for the whole buffer
 
-	MOV	#PROMPT,R1	; Mostrar prompt
+GETLIN:	MOV	#PROMPT,R1	; Display prompt
 	MOV	#LPROMPT,R2
 	JSR	PC,LINOUT
 
-	MOV	#BUFFER,R1	; R1 apunta a buffer d'entrada
-	CLR	R2		; R2 => comptador de caracters
-LLEGIR:	.TTYIN			; LLegir caracter a R0
-	CMPB	R0,#^X0D	; Retorn de carro?
-	BEQ	GETLF		; Si, consumir LF
-	MOVB	R0,(R1)+	; No, desar caracter
-	INC	R2		; Incrementar comptador
-	CMP	R2,#LBUFFER	; Capacitat maxima?
-	BGT	PLE		; Si, acabar
-	BR	LLEGIR		; No: seg caracter
+	MOV	#BUFFER,R1	; R1 => @Buffer
+	CLR	R2		; R2 => Number of read characters
+GETCHAR:	
+	.TTYIN			; Read character into R0
+	CMPB	R0,#^X0D	; Is it a CR?
+	BEQ	GETLF		; Yes, consume LF
+	MOVB	R0,(R1)+	; No, store character in buffer
+	INC	R2		; Increment char counter
+	CMP	R2,#LBUFFER	; Full?
+	BGT	FULL		; Yes: finish
+	BR	GETCHAR		; No: get more characters
 GETLF:
-	.TTYIN			; Consumir LF
-PLE:				; Buffer ple, acabar aqui
-	MOV	R2,-(SP)	; Desar grandaria a stack
+	.TTYIN			; Consume LF
+FULL:				; Full buffer, let's finish here
+
+	CMP	R2,#0		; Is the buffer empty?
+	BEQ	BYE		; Yes: finish
+
+	MOV	R2,-(SP)	; Save string length into stack
 	
-	MOV	#INVER,R1
+	MOV	#INVER,R1	; Display "Inverted..."
 	MOV	#LINVER,R2
 	JSR	PC,LINOUT
 
-	MOV	(SP)+,R2
+	MOV	(SP)+,R2	; Restore string length from stack
 
-	MOV	#BUFFER,R1	; Recuperar adreca de buffer
-	ADD	R2,R1		; R1 => Final de buffer
-OUTR:	.TTYOUT	-(R1)		; Imprimir caracter a final
-	SOB	R2,OUTR		; Seguent
-	JSR	PC,LBREAK	; Final de linia
+	MOV	#BUFFER,R1	; R1 => @Buffer
+	ADD	R2,R1		; R1 => @End of string
+OUTR:	.TTYOUT	-(R1)		; Display character pointed by R1
+	SOB	R2,OUTR		; Loop w/decrement pointer and counter
+	JSR	PC,LBREAK	; Add line break 
+	BR	GETLIN		; Get next line
+
+BYE:	MOV	#FINISH,R1	; Display bye message
+	MOV	#LFINISH,R2
+	JSR	PC,LINOUT
+
+	MOV	R0,#0
 
 	.EXIT
 
-; 	Subrutina per imprimir una linia
-;	L'adreca ha d'estar a R1, longitud a R2
-;	Destrueix R1 i R2
-
-LINOUT:	CMP	R2,#0
-	BLE	20$
-10$:	.TTYOUT	(R1)+
-	SOB	R2,10$
+;------------------------------------------------------------------------
+; LINOUT: Display a text line
+;------------------------------------------------------------------------
+; 	Subroutine to display a text line
+;	R1: @Text
+;	R2: Size
+;	R1 and R2 are destroyed
+;
+LINOUT:	CMP	R2,#0		; Exit when no more chars to display
+	BLE	20$		;
+10$:	.TTYOUT	(R1)+		; Display character pointed by R1
+	SOB	R2,10$		; Decrement counter
 20$:	RTS	PC	
 
-
-LBREAK:	MOV	#CRLF,R1
-	.TTYOUT	(R1)+
-	.TTYOUT	(R1)+
+;------------------------------------------------------------------------
+; LBREAK: Output a line break
+; Destroys R1
+;------------------------------------------------------------------------
+LBREAK:	MOV	#CRLF,R1	; R1 => '\r\n' 
+	.TTYOUT	(R1)+		; Output \r
+	.TTYOUT	(R1)+		; Output \n
 	RTS	PC
 
 	.END START
+
