@@ -1,0 +1,41 @@
+		LINK symbol map of	REVERS		page 1
+	Produced by LINK version 6(2425) on  3-Jan-18 at 11:20:01
+
+	Low  segment starts at	     0 ends at	   406 length	   407 = 1P
+	249 words free in Low segment
+	38 Global symbols loaded, therefore min. hash size is 43
+	Start address is    340, located in program REVERS
+
+		*************
+
+JOBDAT-INITIAL-SYMBOLS
+	%JOBDT      43300000457	Global	Absolute    Suppressed	.JB41                41	Global	Absolute    	
+	.JBAPR              125	Global	Absolute    		.JBBLT               45	Global	Absolute    	
+	.JBCHN              131	Global	Absolute    		.JBCNI              126	Global	Absolute    	
+	.JBCOR              133	Global	Absolute    		.JBCST              136	Global	Absolute    	
+	.JBDA               140	Global	Absolute    		.JBDDT               74	Global	Absolute    	
+	.JBEDV              112	Global	Absolute    		.JBERR               42	Global	Absolute    	
+	.JBFF               121	Global	Absolute    		.JBH41                1	Global	Absolute    Suppressed
+	.JBHCR                2	Global	Absolute    Suppressed	.JBHDA               10	Global	Absolute    Suppressed
+	.JBHGA                7	Global	Absolute    Suppressed	.JBHGH           400000	Global	Absolute    Suppressed
+	.JBHNM                5	Global	Absolute    Suppressed	.JBHRL              115	Global	Absolute    	
+	.JBHRN                3	Global	Absolute    Suppressed	.JBHSA                0	Global	Absolute    Suppressed
+	.JBHSM                6	Global	Absolute    Suppressed	.JBHVR                4	Global	Absolute    Suppressed
+	.JBINT              134	Global	Absolute    		.JBOPC              130	Global	Absolute    	
+	.JBOPS              135	Global	Absolute    		.JBOVL              131	Global	Absolute    	
+	.JBPFH              123	Global	Absolute    		.JBPFI               74	Global	Absolute    	
+	.JBREL               44	Global	Absolute    		.JBREN              124	Global	Absolute    	
+	.JBSA               120	Global	Absolute    		.JBSYM              116	Global	Absolute    	
+	.JBTPC              127	Global	Absolute    		.JBUSY              117	Global	Absolute    	
+	.JBUUO               40	Global	Absolute    		.JBVER              137	Global	Absolute    	
+
+		*************
+
+REVERS	from DSK:REVERS.REL[200,1,ASM]	created by MACRO on  3-Jan-18 at 11:19:00
+	Low  segment starts at	   140 ends at	   406 length	   247 (octal),   167. (decimal)
+
+
+		*************
+
+
+	[End of LINK map of	REVERS]
