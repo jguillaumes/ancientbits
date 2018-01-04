@@ -1,4 +1,3 @@
-
 	.list off
 	.include "c64.inc"
 	.list on
@@ -120,9 +119,8 @@ final:	jsr	newline
 	sta	CHPTRO		; ... store it in zero page pointer
 	ldy	#$0		; Y: zero 
 @loop:	lda	(CHPTRO),y	; Load byte at CHPTRO + y
-	cmp	#$0		; Null byte?
-	beq	@xloop		; Yes, end of string
-	jsr	CHROUT		; No: put character using KERNAL
+	beq	@xloop		; If null, end of string
+	jsr	CHROUT		; Put character using KERNAL
 	iny			; Increment Y for next byte
 	jmp	@loop		; And repeat
 @xloop: pla			; Restore the X register

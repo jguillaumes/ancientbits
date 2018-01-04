@@ -2,7 +2,6 @@ ca65 V2.16 - Git N/A
 Main file   : revers.s
 Current file: revers.s
 
-000000r 1               
 000000r 1               	.list off
 000000r 1               	.list on
 000000r 1               
@@ -123,29 +122,28 @@ Current file: revers.s
 000089r 1  85 FB        	sta	CHPTRO		; ... store it in zero page pointer
 00008Br 1  A0 00        	ldy	#$0		; Y: zero
 00008Dr 1  B1 FB        @loop:	lda	(CHPTRO),y	; Load byte at CHPTRO + y
-00008Fr 1  C9 00        	cmp	#$0		; Null byte?
-000091r 1  F0 07        	beq	@xloop		; Yes, end of string
-000093r 1  20 D2 FF     	jsr	CHROUT		; No: put character using KERNAL
-000096r 1  C8           	iny			; Increment Y for next byte
-000097r 1  4C rr rr     	jmp	@loop		; And repeat
-00009Ar 1  68           @xloop: pla			; Restore the X register
-00009Br 1  AA           	tax			; ... using the accumulator
-00009Cr 1  68           	pla			; Restore Y register
-00009Dr 1  A8           	tay			; ... using the accumulator
-00009Er 1  60           	rts
-00009Fr 1               	.endproc
-00009Fr 1               
-00009Fr 1               	;; -------------------------------------------------------------
-00009Fr 1               	;; Output a newline (CR) using KERNAL
-00009Fr 1               	;; -------------------------------------------------------------
-00009Fr 1               	.proc newline
-00009Fr 1  A9 0D        	lda	#CR
-0000A1r 1  20 D2 FF     	jsr	CHROUT
-0000A4r 1  60           	rts
-0000A5r 1               	.endproc
-0000A5r 1               
-0000A5r 1               	;; Constant data (literals)
-0000A5r 1               	.rodata
+00008Fr 1  F0 07        	beq	@xloop		; If null, end of string
+000091r 1  20 D2 FF     	jsr	CHROUT		; Put character using KERNAL
+000094r 1  C8           	iny			; Increment Y for next byte
+000095r 1  4C rr rr     	jmp	@loop		; And repeat
+000098r 1  68           @xloop: pla			; Restore the X register
+000099r 1  AA           	tax			; ... using the accumulator
+00009Ar 1  68           	pla			; Restore Y register
+00009Br 1  A8           	tay			; ... using the accumulator
+00009Cr 1  60           	rts
+00009Dr 1               	.endproc
+00009Dr 1               
+00009Dr 1               	;; -------------------------------------------------------------
+00009Dr 1               	;; Output a newline (CR) using KERNAL
+00009Dr 1               	;; -------------------------------------------------------------
+00009Dr 1               	.proc newline
+00009Dr 1  A9 0D        	lda	#CR
+00009Fr 1  20 D2 FF     	jsr	CHROUT
+0000A2r 1  60           	rts
+0000A3r 1               	.endproc
+0000A3r 1               
+0000A3r 1               	;; Constant data (literals)
+0000A3r 1               	.rodata
 000000r 1  52 45 56 45  hello:	.asciiz	"reverse per c64"
 000004r 1  52 53 45 20  
 000008r 1  50 45 52 20  

@@ -1,7 +1,7 @@
 Modules list:
 -------------
 revers.o:
-    CODE              Offs=000000  Size=0000A5  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=0000A3  Align=00001  Fill=0000
     RODATA            Offs=000000  Size=000042  Align=00001  Fill=0000
     BSS               Offs=000000  Size=000081  Align=00001  Fill=0000
 /usr/local/Cellar/cc65/2.16/share/cc65/lib/c64.lib(exehdr.o):
@@ -16,9 +16,9 @@ Name                   Start     End    Size  Align
 ----------------------------------------------------
 LOADADDR              0007FF  000800  000002  00001
 EXEHDR                000801  00080C  00000C  00001
-CODE                  00080D  0008B1  0000A5  00001
-RODATA                0008B2  0008F3  000042  00001
-BSS                   0008F4  000974  000081  00001
+CODE                  00080D  0008AF  0000A3  00001
+RODATA                0008B0  0008F1  000042  00001
+BSS                   0008F2  000972  000081  00001
 
 
 Exports list by name:
