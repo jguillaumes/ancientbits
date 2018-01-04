@@ -1,0 +1,143 @@
+REVERS - Reverse a String in Z80 ASM for CP/M	MACRO-80 3.44	09-Dec-81	PAGE	1
+
+
+    1	                                	  TITLE REVERS - Reverse a String in Z80 ASM for CP/M
+    2	                                
+    3	                                	  PUBLIC start
+    4	                                
+    5	  0005                          bdos	equ  	0005h		; Address of BDOS gate
+    6	  0009                          printf	equ 	9		; Print string to console BDOS service
+    7	  000A                          reads	equ 	10		; Get string from console BDOS service
+    8	  0050                          BUFSIZE	equ	80		; Buffer size
+    9	                                
+   10	                                	;; Literals
+   11	  0000'   53 74 72 69           hello:	db	'String reverser, CP/M version',13,10,'$'
+   12	  0004'   6E 67 20 72           
+   13	  0008'   65 76 65 72           
+   14	  000C'   73 65 72 2C           
+   15	  0010'   20 43 50 2F           
+   16	  0014'   4D 20 76 65           
+   17	  0018'   72 73 69 6F           
+   18	  001C'   6E 0D 0A 24           
+   19	  0020'   45 6E 74 65           prompt:	db	'Enter a line:   ','$'
+   20	  0024'   72 20 61 20           
+   21	  0028'   6C 69 6E 65           
+   22	  002C'   3A 20 20 20           
+   23	  0030'   24                    
+   24	  0031'   49 6E 76 65           inver:	db	'Inverted line:  ','$'
+   25	  0035'   72 74 65 64           
+   26	  0039'   20 6C 69 6E           
+   27	  003D'   65 3A 20 20           
+   28	  0041'   24                    
+   29	  0042'   46 69 6E 69           bye:	db	'Finished',13,10,'$'
+   30	  0046'   73 68 65 64           
+   31	  004A'   0D 0A 24              
+   32	  004D'   0D                    crlf:	db	13
+   33	  004E'   0A 24                 lf:	db	10,'$'
+   34	                                	;; Input buffer, in the format expected by BDOS function 10
+   35	  0050'   50                    buffer:	db	BUFSIZE
+   36	  0051'   00                    numch:	db	0
+   37	  0052'                         bufchr:	ds	BUFSIZE
+   38	                                	;; Buffer to build the inverted string
+   39	  00A2'                         bufinv:	ds	BUFSIZE
+   40	                                
+   41	                                	
+   42	  00F2'   11 0000'              start:	ld   	de,hello	; Display welcome message
+   43	  00F5'   CD 0145'                      call 	putstr
+   44	                                	
+   45	  00F8'   11 0020'              getlin:	ld	de,prompt	; Display prompt
+   46	  00FB'   CD 0145'              	call	putstr
+   47	                                
+   48	  00FE'   11 0050'              	ld	de,buffer	; Read string from console
+   49	  0101'   0E 0A                 	ld	c,reads
+   50	  0103'   CD 0005               	call	bdos
+   51	  0106'   11 004E'              	ld	de,lf		; ... and put a linefeed
+   52	  0109'   CD 0145'              	call	putstr
+   53	                                	
+   54	  010C'   3A 0051'              	ld	a,(numch)	; a: Number of characters read
+   55	  010F'   FE 00                 	cp	0		; Have we got anything?
+   56	  0111'   28 29                 	jr	z,final		; No: finish
+REVERS - Reverse a String in Z80 ASM for CP/M	MACRO-80 3.44	09-Dec-81	PAGE	1-1
+
+
+   57	                                
+   58	  0113'   47                    	ld	b,a		; b: Number of chars (used as counter)
+   59	  0114'   16 00                 	ld	d,0		; de: number of chars (to add to hl)
+   60	  0116'   5F                    	ld	e,a	
+   61	  0117'   21 0052'              	ld	hl,bufchr	; hl: @beginning of input buffer
+   62	  011A'   19                    	add	hl,de		; hl: @last character + 1
+   63	  011B'   2B                    	dec	hl		; h1: @last character in buffer
+   64	  011C'   11 00A2'              	ld	de,bufinv	; dw: @Beginning of output buffer
+   65	  011F'   7E                    loop:	ld	a,(hl)		; get character pointed by hl
+   66	  0120'   12                    	ld	(de),a		; ... and save it in output buffer
+   67	  0121'   2B                    	dec	hl		; Decrement pointer to input string
+   68	  0122'   13                    	inc	de		; Increment pointer to output string
+   69	  0123'   10 FA                 	djnz	loop		; Use b as control counter, decrement/loop
+   70	                                	
+   71	  0125'   3E 24                 	ld	a,'$'		; Add the '$' terminator to the output buffer
+   72	  0127'   12                    	ld	(de),a		; (de still points to the correct address)
+   73	                                	
+   74	  0128'   11 0031'              	ld	de,inver	; Display the "inverted..." text
+   75	  012B'   CD 0145'              	call	putstr
+   76	  012E'   11 00A2'              	ld	de,bufinv	; Display the actual inverted text
+   77	  0131'   CD 0145'              	call	putstr
+   78	  0134'   11 004D'              	ld	de,crlf		; Terminate it with CR+LF
+   79	  0137'   CD 0145'              	call 	putstr
+   80	  013A'   18 BC                 	jr	getlin		; Go get another line
+   81	                                
+   82	                                	
+   83	  013C'   11 0042'              final:	ld	de,bye		; Displau the goodbye message
+   84	  013F'   0E 09                 	ld	c,printf
+   85	  0141'   CD 0005               	call	bdos
+   86	                                	
+   87	  0144'   C9                    	ret          		; Return to BDOS
+   88	                                
+   89	                                	;; -------------------------------------------------------------
+   90	                                	;; putstr - Display a '$' terminated string pointed by DE
+   91	                                	;; -------------------------------------------------------------
+   92	                                	;; Destroys c
+   93	  0145'   0E 09                 putstr:	ld	c,printf
+   94	  0147'   CD 0005               	call	bdos
+   95	  014A'   C9                    	ret
+   96	                                	
+   97	                                        end start
+REVERS - Reverse a String in Z80 ASM for CP/M	MACRO-80 3.44	09-Dec-81	PAGE	S
+
+
+Macros:
+
+Symbols:
+0005 	BDOS            0052'	BUFCHR          0050'	BUFFER          
+00A2'	BUFINV          0050 	BUFSIZE         0042'	BYE             
+004D'	CRLF            013C'	FINAL           00F8'	GETLIN          
+0000'	HELLO           0031'	INVER           004E'	LF              
+011F'	LOOP            0051'	NUMCH           0009 	PRINTF          
+0020'	PROMPT          0145'	PUTSTR          000A 	READS           
+00F2I'	START           
+
+
+
+No Fatal error(s)
+
+
+
+BDOS	    5#	   50	   85	   94
+BUFCHR	   37#	   61
+BUFFER	   35#	   48
+BUFINV	   39#	   64	   76
+BUFSIZE	    8#	   35	   37	   39
+BYE	   29#	   83
+CRLF	   32#	   78
+FINAL	   56	   83#
+GETLIN	   45#	   80
+HELLO	   11#	   42
+INVER	   24#	   74
+LF	   33#	   51
+LOOP	   65#	   69
+NUMCH	   36#	   54
+PRINTF	    6#	   84	   93
+PROMPT	   19#	   45
+PUTSTR	   43	   46	   52	   75	   77	   79	   93#
+READS	    7#	   49
+START	    3	   42#	   97
+
