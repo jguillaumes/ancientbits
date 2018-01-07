@@ -1,5 +1,5 @@
-Microsoft (R) Macro Assembler Version 6.11		    01/02/18 12:18:44
-REVERS.ASM						     Page 1 - 1
+Microsoft (R) Macro Assembler Version 6.11		    01/07/18 15:10:11
+revers.asm						     Page 1 - 1
 
 
 						.model small
@@ -14,16 +14,16 @@ REVERS.ASM						     Page 1 - 1
        72 61 6D 20 2D 20
        4D 53 44 4F 53 0D
        0A 24
- 001A 45 6E 74 72 61 20		prompt  db  'Entra una linia:   ','$'
-       75 6E 61 20 6C 69
-       6E 69 61 3A 20 20
-       20 24
- 002E 0D 0A 4C 69 6E 69		inver   db  0dh,0ah,'Linia invertida:   ','$'
-       61 20 69 6E 76 65
-       72 74 69 64 61 3A
-       20 20 20 24
- 0044 0D 0A 46 69 6E 61		adeu    db  0dh,0ah,'Finalitzat'
-       6C 69 74 7A 61 74
+ 001A 45 6E 74 65 72 20		prompt  db          'Enter a text line:  ','$'
+       61 20 74 65 78 74
+       20 6C 69 6E 65 3A
+       20 20 24
+ 002F 0D 0A 49 6E 76 65		inver   db  0dh,0ah,'Inverted line:      ','$'
+       72 74 65 64 20 6C
+       69 6E 65 3A 20 20
+       20 20 20 20 24
+ 0046 0D 0A 46 69 6E 69		bye    db  0dh,0ah,'Finished'
+       73 68 65 64
  0050 0D 0A 24			crlf    db  0dh,0ah,'$'
  0053 FF			buffin  db  255
  0054 00			numch   db  0
@@ -33,76 +33,76 @@ REVERS.ASM						     Page 1 - 1
  0155  0100 [			bufout  db  BUFSIZ dup(' ')
         20
        ]
-						
+				
  0000						.code
-				  
+				
  0000				main    proc
- 0000  B8 ---- R				mov ax, seg hello       ; C…rrega segments de dades
+ 0000  B8 ---- R				mov ax, seg hello       ; Setup data segment (DS and ES)
  0003  8E D8					mov ds, ax
  0005  8E C0					mov es, ax
 				
- 0007  8D 16 0000 R				lea dx, hello           ; Mostrar missatge inicial
+ 0007  8D 16 0000 R				lea dx, hello           ; Show welcome message
  000B  B4 09					mov ah, 09h
- 000D  CD 21					int 21h      
+ 000D  CD 21					int 21h
 				
- 000F  8D 16 001A R		getlin: lea dx, prompt          ; Mostrar prompt
+ 000F  8D 16 001A R		getlin: lea dx, prompt      		; Show prompt
  0013  B4 09					mov ah, 09h
  0015  CD 21					int 21h
 				
- 0017  8D 16 0053 R				lea dx, buffin          ; Llegir linia d'entrada
- 001B  B4 0C					mov ah, 0ch             ; Netejar buffer STDIN
- 001D  B0 0A					mov al, 0ah             ; Llegir amb buffer
+ 0017  8D 16 0053 R				lea dx, buffin          ; Input text line
+ 001B  B4 0C					mov ah, 0ch             ; Clear STDIN buffer
+ 001D  B0 0A					mov al, 0ah             ; Buffered read DOS function
  001F  CD 21					int 21h
- 0021  A0 0054 R				mov al, byte ptr [numch]; AL: Nombre de caracters
- 0024  3C 00					cmp al, 0               ; Buffer buit?
- 0026  74 3C					je  final               ; Si: acabar
+ 0021  A0 0054 R				mov al, byte ptr [numch]; AL: Number of characters
+ 0024  3C 00					cmp al, 0               ; Is the buffer empty?
+ 0026  74 3C					je  final               ; Yes: finish
 				
- 0028  8D 16 002E R				lea dx,inver
+ 0028  8D 16 002F R				lea dx,inver		; Display "Inverted..." text 
  002C  B4 09					mov ah,09h
  002E  CD 21					int 21h
 				
- 0030  8D 06 0055 R				lea ax,bufchr           ; AX => Inici buffer entrada
+ 0030  8D 06 0055 R				lea ax,bufchr           ; AX => Start of input buffer
  0034  2B C9					sub cx,cx               ; CX => Zero
- 0036  8A 0E 0054 R				mov cl,byte ptr [numch] ; CX => Bytes a buffer
- 003A  03 C1					add ax,cx               ; AX => Final buffer entrada+1
- 003C  48					dec ax                  ; AX => Final cadena entrada
- 003D  8B F0					mov si,ax               ; SI => Final buffer entrada
- 003F  8D 3E 0155 R				lea di,bufout           ; DI => Inici buffer sortida
+ 0036  8A 0E 0054 R				mov cl,byte ptr [numch] ; CX => Number of bytes in buffer
+ 003A  03 C1					add ax,cx               ; AX => End of input text + 1
+ 003C  48					dec ax                  ; AX => End of input text
+ 003D  8B F0					mov si,ax               ; SI => End of input text
+ 003F  8D 3E 0155 R				lea di,bufout           ; DI => Start of output buffer
 				
  0043				theloop:
- 0043  FD					std                     ; Sentit SI: Descendent
- 0044  AC					lodsb                   ; Carregar byte a AL
- 0045  FC					cld                     ; Sentit DI: Ascendent
- 0046  AA					stosb                   ; Desar byte a buffer
- 0047  E2 FA					loop theloop            ; Saltar segons comptador CX
- 0049  B9 0003					mov cx,3                ; Apuntar a sequencia CR+LF+$ 
- 004C  8D 36 0050 R				lea si,crlf             ;
- 0050  F3/ A4					rep movsb               ; I afegir-la al buffer
+ 0043  FD					std                     ; change direction: decrement
+ 0044  AC					lodsb                   ; Load byte from DS:SI, decrement SI
+ 0045  FC					cld                     ; change direction: increment
+ 0046  AA					stosb                   ; Store byte at ES:DI, increment DI
+ 0047  E2 FA					loop theloop            ; Check CX and loop if not zero
+ 0049  B9 0003					mov cx,3                ; Prepare to move 3 more bytes (CR,LF,'$')
+ 004C  8D 36 0050 R				lea si,crlf             ; DS:SI => CR+LF+'$'
+ 0050  F3/ A4					rep movsb               ; Move to ES:DS (append to output buffer)
 				
- 0052  8D 16 0155 R				lea dx, bufout          ; Emetre el buffer de sortida...
+ 0052  8D 16 0155 R				lea dx, bufout          ; Display output buffer (inverted text)
  0056  B4 09					mov ah, 09h
  0058  CD 21					int 21h
-						
- 005A  8D 16 0050 R				lea dx,crlf             ; Emetre un altre salt de linia
+				
+ 005A  8D 16 0050 R				lea dx,crlf             ; New line...
  005E  B4 09					mov ah, 09h
  0060  CD 21					int 21h
 				
- 0062  EB AB					jmp getlin              ; Processar una altra linia
+ 0062  EB AB					jmp getlin              ; Get one more line to process
 				
 				
- 0064  8D 16 0044 R		final:  lea dx, adeu
+ 0064  8D 16 0046 R		final:  	lea dx, bye		; Display goodbye message
  0068  B4 09					mov ah, 09h
  006A  CD 21					int 21h
 				
- 006C  B8 4C00					mov ax, 4C00h
+ 006C  B8 4C00					mov ax, 4C00h		; End program, code=00 (ah=4Ch, al=00h)
  006F  CD 21					int 21h
 				
  0071  C3					ret
  0072				main    endp
-					
+				
 						end main
-Microsoft (R) Macro Assembler Version 6.11		    01/02/18 12:18:44
-REVERS.ASM						     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 6.11		    01/07/18 15:10:11
+revers.asm						     Symbols 2 - 1
 
 
 
@@ -141,13 +141,13 @@ Symbols:
 @fardata . . . . . . . . . . . .	Text   	 FAR_DATA
 @stack . . . . . . . . . . . . .	Text   	 DGROUP
 BUFSIZ . . . . . . . . . . . . .	Number	 0100h	 
-adeu . . . . . . . . . . . . . .	Byte	 0044	  _DATA	
 bufchr . . . . . . . . . . . . .	Byte	 0055	  _DATA	
 buffin . . . . . . . . . . . . .	Byte	 0053	  _DATA	
 bufout . . . . . . . . . . . . .	Byte	 0155	  _DATA	
+bye  . . . . . . . . . . . . . .	Byte	 0046	  _DATA	
 crlf . . . . . . . . . . . . . .	Byte	 0050	  _DATA	
 hello  . . . . . . . . . . . . .	Byte	 0000	  _DATA	
-inver  . . . . . . . . . . . . .	Byte	 002E	  _DATA	
+inver  . . . . . . . . . . . . .	Byte	 002F	  _DATA	
 numch  . . . . . . . . . . . . .	Byte	 0054	  _DATA	
 prompt . . . . . . . . . . . . .	Byte	 001A	  _DATA	
 
