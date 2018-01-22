@@ -1,0 +1,12 @@
+
+
+revers.exe:	revers.asm
+	ml /Sg /Flrevers.lst /Fmrevers.map revers.asm
+
+clean:
+	@del revers.exe
+	@del revers.obj
+	@del revers.lst
+	@del revers.map
+
+
