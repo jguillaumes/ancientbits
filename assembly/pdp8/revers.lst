@@ -10,242 +10,247 @@
     6       0010          OUTBUF=10       / AUTOINDEX FOR OUTPUT
     7       0011          INPBUF=11       / AUTOINDEX OF INPUT
     8       0012          REVBUF=12       / AUTOINDEX FOR REVERSE
-    9       0120          BUFSIZ=120      / BUFFER SIZE (DECIMAL: 80)
-   10       0215          CR=215          / CARRIAGE RETURN
-   11       0212          LF=212          / LINE FEED
-   12             
-   13 00200 7300          CLA CLL         / Clear acc and link
-   14 00201 1233          TAD     HELLO
-   15 00202 4777@         JMS     PUTSIX
-   16 00203 4776@         JMS     NEWL
-   17             
-   18 00204 7300  GLOOP,  CLA CLL
-   19 00205 1261          TAD     PROMPT
-   20 00206 4777@         JMS     PUTSIX
-   21             
-   22 00207 4775@         JMS     GETASC
-   23 00210 4776@         JMS     NEWL
-   24 00211 7300          CLA CLL
-   25 00212 1774@         TAD     CNTR
-   26 00213 7450          SNA
-   27 00214 5225          JMP     FINISH
-   28             
-   29 00215 7300          CLA CLL 
-   30 00216 1272          TAD     INVER
-   31 00217 4777@         JMS     PUTSIX
-   32             
-   33 00220 7300          CLA CLL
-   34 00221 1773@         TAD     IBUFF
-   35 00222 4772@         JMS     PUTASC
-   36 00223 4776@         JMS     NEWL    
-   37 00224 5204          JMP     GLOOP
-   38                     
-   39 00225 7300  FINISH, CLA CLL
-   40 00226 1303          TAD     BYE
-   41 00227 4777@         JMS     PUTSIX
-   42 00230 4776@         JMS     NEWL    
-   43 00231 7402          HLT
-   44 00232 5577          JMP I   [7600   
-   45             
-   46 00233 0233  HELLO,  .
-   47 00234 2324          TEXT    /STRING REVERSING PROGRAM (PDP-8 VERSION)/
-      00235 2211
-      00236 1607
-      00237 4022
-      00240 0526
-      00241 0522
-      00242 2311
-      00243 1607
-      00244 4020
-      00245 2217
-      00246 0722
+    9       0020          REVPTR=20       / ZERO-PAGE POINTER FOR REVERSE
+   10       0021          REVCTR=21       / COUNTER FOR REVERSE
+   11       0120          BUFSIZ=120      / BUFFER SIZE (DECIMAL: 80)
+   12       0215          CR=215          / CARRIAGE RETURN
+   13       0212          LF=212          / LINE FEED
+   14             
+   15 00200 7300          CLA CLL         / Clear acc and link
+   16 00201 1234          TAD     HELLO   / GET ADDRESS OF HELLO MESSAGE
+   17 00202 4777@         JMS     PUTSIX  / OUTPUT IT
+   18 00203 4776@         JMS     NEWL    / ... AND A NEWLINE
+   19             
+   20 00204 7300  GLOOP,  CLA CLL
+   21 00205 1262          TAD     PROMPT  / GET ADDRESS OF PROMPT
+   22 00206 4777@         JMS     PUTSIX  / OUTPUT IT, NO NEW LINE
+   23             
+   24 00207 4775@         JMS     GETASC  / READ A LINE OF TEXT
+   25 00210 4776@         JMS     NEWL    / AND OUTPUT A NEWLINE
+   26 00211 7300          CLA CLL
+   27 00212 1774@         TAD     CNTR    / LOAD NUMBER OF READ CHARS
+   28 00213 7450          SNA             / ZERO? (SKIP IF NOT)
+   29 00214 5226          JMP     FINISH  / YES: END OF PROCESS
+   30                     
+   31 00215 7300          CLA CLL 
+   32 00216 1273          TAD     INVER   / GET ADDRESS OF 'INVERTED...' MSG
+   33 00217 4777@         JMS     PUTSIX  / OUTPUT IT, NO NEWLINE
+   34             
+   35 00220 4773@         JMS     DOREV   / DO THE REVERSING
+   36             
+   37 00221 7300          CLA CLL
+   38 00222 1772@         TAD     RBUFF   / LOAD ADDRESS OF REVERSED STRING
+   39 00223 4771@         JMS     PUTASC  / OUTPUT IT..
+   40 00224 4776@         JMS     NEWL    / ... AND A NEWLINE
+   41 00225 5204          JMP     GLOOP   / GET ANOTHER STRING
+   42                     
+   43 00226 7300  FINISH, CLA CLL
+   44 00227 1304          TAD     BYE     / LOAD ADDRESS OF BYE MESSAGE
+   45 00230 4777@         JMS     PUTSIX  / OUTPUT IT...
+   46 00231 4776@         JMS     NEWL    / WITH A NEWLINE
+   47 00232 7402          HLT             / FOR STANDALONE EXECUTION
+   48 00233 5577          JMP I   [7600   / FOR MONITOR EXECUTION
+   49             
+   50 00234 0234  HELLO,  .
+   51 00235 2324          TEXT    /STRING REVERSING PROGRAM (PDP-8 VERSION)/
+      00236 2211
+      00237 1607
+      00240 4022
+      00241 0526
+      00242 0522
+      00243 2311
 
                                                                           Page 2
 
 
-      00247 0115
-      00250 4050
-      00251 2004
-      00252 2055
-      00253 7040
-      00254 2605
-      00255 2223
-      00256 1117
-      00257 1651
-      00260 0000
-   48 00261 0261  PROMPT, .
-   49 00262 0516          TEXT    /ENTER A LINE:  /
-      00263 2405
-      00264 2240
-      00265 0140
-      00266 1411
-      00267 1605
-      00270 7240
-      00271 4000
-   50 00272 0272  INVER,  .
-   51 00273 2205          TEXT    /REVERSED LINE: /
-      00274 2605
-      00275 2223
-      00276 0504
-      00277 4014
-      00300 1116
-      00301 0572
-      00302 4000
-   52 00303 0303  BYE,    .
-   53 00304 0611          TEXT    /FINISHED./
-      00305 1611
-      00306 2310
-      00307 0504
-      00310 5600
-   54             
-      00372 0641
-      00373 0656
+      00244 1607
+      00245 4020
+      00246 2217
+      00247 0722
+      00250 0115
+      00251 4050
+      00252 2004
+      00253 2055
+      00254 7040
+      00255 2605
+      00256 2223
+      00257 1117
+      00260 1651
+      00261 0000
+   52 00262 0262  PROMPT, .
+   53 00263 0516          TEXT    /ENTER A LINE:  /
+      00264 2405
+      00265 2240
+      00266 0140
+      00267 1411
+      00270 1605
+      00271 7240
+      00272 4000
+   54 00273 0273  INVER,  .
+   55 00274 2205          TEXT    /REVERSED LINE: /
+      00275 2605
+      00276 2223
+      00277 0504
+      00300 4014
+      00301 1116
+      00302 0572
+      00303 4000
+   56 00304 0304  BYE,    .
+   57 00305 0611          TEXT    /FINISHED./
+      00306 1611
+      00307 2310
+      00310 0504
+      00311 5600
+   58             
+      00371 0641
+      00372 1022
+      00373 1000
       00374 0655
       00375 0600
       00376 0445
       00377 0400
-   55                     PAGE
-   56             
-   57 00400 0000  PUTSIX, 0               / ROUTINE START
-   58                                     / ADDRESS OF STRING IN AC
-   59 00401 3010          DCA     OUTBUF
-   60 00402 1410  NEXTW,  TAD I   OUTBUF  / GET SIXBIT PAIR
-   61 00403 3266          DCA     CURSIX  / STORE IT
-   62                                     / EVEN HALF
-   63 00404 1266          TAD     CURSIX  / RE-GET CHARACTER
-   64 00405 0264          AND     LMASK   / GET LEFT SIX BITS
-   65 00406 7100          CLL             / MAKE SURE LINK IS CLEAR
-   66 00407 7012          RTR             / ROTATE SIX TIMES TO RIGHT
-   67 00410 7012          RTR             / RTR ROTATES TWICE
-   68 00411 7012          RTR             / 
-   69 00412 7450          SNA             / ZERO?
-   70 00413 5600          JMP I   PUTSIX  / YES: END                      
+   59                     PAGE
+   60             
+   61 00400 0000  PUTSIX, 0               / ROUTINE START
+   62                                     / ADDRESS OF STRING IN AC
+   63 00401 3010          DCA     OUTBUF
+   64 00402 1410  NEXTW,  TAD I   OUTBUF  / GET SIXBIT PAIR
+   65 00403 3266          DCA     CURSIX  / STORE IT
+   66                                     / EVEN HALF
+   67 00404 1266          TAD     CURSIX  / RE-GET CHARACTER
+   68 00405 0264          AND     LMASK   / GET LEFT SIX BITS
+   69 00406 7100          CLL             / MAKE SURE LINK IS CLEAR
 
                                                                           Page 3
 
 
-   71 00414 4224          JMS     SIXOUT  / AND OUTPUT CHARACTER
-   72                                     / ODD HALF
-   73 00415 7200          CLA
-   74 00416 1266          TAD     CURSIX  / GET BACK CURRENT WORD
-   75 00417 0265          AND     RMASK   / GET RIGHT CHARACTER
-   76 00420 7450          SNA             / ZERO?
-   77 00421 5600          JMP I   PUTSIX  / YES: END
-   78 00422 4224          JMS     SIXOUT  / OUTPUT CHARACTER
-   79 00423 5202          JMP     NEXTW   / NEXT WORD
-   80             
-   81 00424 0000  SIXOUT, 0               / TTY SIXBIT OUTPUT ROUTINE
-   82 00425 3267          DCA     CURCHR  / SAVE CURRENT CHARACTER
-   83 00426 7100          CLL             / CLEAR LINK/CARRY
-   84 00427 1270          TAD     SPACE   / GET VALUE OF SPACE (040)
-   85 00430 7041          CIA             / NEGATIVE IT...
-   86 00431 1267          TAD     CURCHR  / ADD ORIGINAL CHAR
-   87 00432 7510          SPA             / POSITIVE? (CHAR >= SPACE)
-   88 00433 5240          JMP     ADDMSK  / NO, ADD 0100
-   89 00434 7200          CLA             / YES, PROCEED AS IS
-   90 00435 1267          TAD     CURCHR  / READ AGAIN CHARACTER
-   91 00436 4255          JMS     TTYO    / OUTPUT CHAR
-   92 00437 5624          JMP I   SIXOUT  / RETUN
-   93 00440 7200  ADDMSK, CLA             / NO, GET CHAR...
-   94 00441 1267          TAD     CURCHR  / ... AS SAVED
-   95 00442 1263          TAD     AMASK   / AND ADD 0100 TO CONVER TO ASCII
-   96 00443 4255          JMS     TTYO    / PROCEED WITH OUTPUT
-   97 00444 5624          JMP I   SIXOUT  / RETURN
-   98             
-   99 00445 0000  NEWL,   0               / OUTPUT A NEW LINE
-  100 00446 7200          CLA
-  101 00447 1377          TAD     (CR)    / OUTPUT CR
-  102 00450 4255          JMS     TTYO
-  103 00451 7200          CLA
-  104 00452 1376          TAD     (LF)    / OUTPUT LF
-  105 00453 4255          JMS     TTYO
-  106 00454 5645          JMP I   NEWL
-  107             
-  108 00455 0000  TTYO,   0               / OUTPUT ASCII CHAR AT ACC
-  109 00456 6046          TLS             / WRITE AC TO OUTPUT
-  110 00457 6041          TSF             / SKIP IF TTY READY
-  111 00460 5257          JMP     .-1     / TTY NOT READY, REPEAT
-  112 00461 7200          CLA             / CLEAR AC
-  113 00462 5655          JMP I   TTYO    / RETURN 
-  114             
-  115             
-  116 00463 0100  AMASK,  0100            / SIXBIT + 0100 = ASCII
-  117 00464 7700  LMASK,  7700            / MASK FOR LEFT CHARACTER
-  118 00465 0077  RMASK,  0077            / MASK FOR RIGHT CHARACTER
-  119 00466 0000  CURSIX, 0               / CURRENT SIXBIT DUET
-  120 00467 0000  CURCHR, 0               / SIXBIT CHARACTER IN PROCESS
-  121 00470 0040  SPACE,  40              / BLANK SPACE
-  122 00471 4000  SIGN,   4000            / SIGN MASK
-  123             
-  124             
-      00576 0212
-      00577 0215
-  125                     PAGE
+   70 00407 7012          RTR             / ROTATE SIX TIMES TO RIGHT
+   71 00410 7012          RTR             / RTR ROTATES TWICE
+   72 00411 7012          RTR             / 
+   73 00412 7450          SNA             / ZERO?
+   74 00413 5600          JMP I   PUTSIX  / YES: END                      
+   75 00414 4224          JMS     SIXOUT  / AND OUTPUT CHARACTER
+   76                                     / ODD HALF
+   77 00415 7200          CLA
+   78 00416 1266          TAD     CURSIX  / GET BACK CURRENT WORD
+   79 00417 0265          AND     RMASK   / GET RIGHT CHARACTER
+   80 00420 7450          SNA             / ZERO?
+   81 00421 5600          JMP I   PUTSIX  / YES: END
+   82 00422 4224          JMS     SIXOUT  / OUTPUT CHARACTER
+   83 00423 5202          JMP     NEXTW   / NEXT WORD
+   84             
+   85 00424 0000  SIXOUT, 0               / TTY SIXBIT OUTPUT ROUTINE
+   86 00425 3267          DCA     CURCHR  / SAVE CURRENT CHARACTER
+   87 00426 7100          CLL             / CLEAR LINK/CARRY
+   88 00427 1270          TAD     SPACE   / GET VALUE OF SPACE (040)
+   89 00430 7041          CIA             / NEGATIVE IT...
+   90 00431 1267          TAD     CURCHR  / ADD ORIGINAL CHAR
+   91 00432 7510          SPA             / POSITIVE? (CHAR >= SPACE)
+   92 00433 5240          JMP     ADDMSK  / NO, ADD 0100
+   93 00434 7200          CLA             / YES, PROCEED AS IS
+   94 00435 1267          TAD     CURCHR  / READ AGAIN CHARACTER
+   95 00436 4255          JMS     TTYO    / OUTPUT CHAR
+   96 00437 5624          JMP I   SIXOUT  / RETUN
+   97 00440 7200  ADDMSK, CLA             / NO, GET CHAR...
+   98 00441 1267          TAD     CURCHR  / ... AS SAVED
+   99 00442 1263          TAD     AMASK   / AND ADD 0100 TO CONVER TO ASCII
+  100 00443 4255          JMS     TTYO    / PROCEED WITH OUTPUT
+  101 00444 5624          JMP I   SIXOUT  / RETURN
+  102             
+  103 00445 0000  NEWL,   0               / OUTPUT A NEW LINE
+  104 00446 7200          CLA
+  105 00447 1377          TAD     (CR)    / OUTPUT CR
+  106 00450 4255          JMS     TTYO
+  107 00451 7200          CLA
+  108 00452 1376          TAD     (LF)    / OUTPUT LF
+  109 00453 4255          JMS     TTYO
+  110 00454 5645          JMP I   NEWL
+  111             
+  112 00455 0000  TTYO,   0               / OUTPUT ASCII CHAR AT ACC
+  113 00456 6046          TLS             / WRITE AC TO OUTPUT
+  114 00457 6041          TSF             / SKIP IF TTY READY
+  115 00460 5257          JMP     .-1     / TTY NOT READY, REPEAT
+  116 00461 7200          CLA             / CLEAR AC
+  117 00462 5655          JMP I   TTYO    / RETURN 
+  118             
+  119             
+  120 00463 0100  AMASK,  0100            / SIXBIT + 0100 = ASCII
+  121 00464 7700  LMASK,  7700            / MASK FOR LEFT CHARACTER
+  122 00465 0077  RMASK,  0077            / MASK FOR RIGHT CHARACTER
+  123 00466 0000  CURSIX, 0               / CURRENT SIXBIT DUET
+  124 00467 0000  CURCHR, 0               / SIXBIT CHARACTER IN PROCESS
+  125 00470 0040  SPACE,  40              / BLANK SPACE
+  126 00471 4000  SIGN,   4000            / SIGN MASK
 
                                                                           Page 4
 
 
-  126             
-  127 00600 0000  GETASC, 0               / GET A CHARACTER STRING AT IBUFF
-  128 00601 7200          CLA             
-  129 00602 3255          DCA     CNTR    / COUNTER = 0
-  130 00603 1256          TAD     IBUFF
-  131 00604 3011          DCA     INPBUFF / INPBUFF => BEGIN OF INPUT BUFFER
-  132 00605 6032          KCC             / CLEAR KBD BUFFER
-  133 00606 6031  ILOOP,  KSF             /
-  134 00607 5206          JMP     .-1     /
-  135 00610 6036          KRB             / READ BUFFER
-  136 00611 3254          DCA     LASTC   / STORE TO USE LATER
-  137 00612 1254          TAD     LASTC   / RECOVER TO STORE IN BUFFER
-  138 00613 3411          DCA I   INPBUFF / STORE AND INCREMENT
-  139 00614 1254          TAD     LASTC   / RECOVER AGAIN TO OUTPUT
-  140 00615 4777@         JMS     TTYO    / ECHO IT
-  141 00616 7200          CLA             
-  142 00617 1254          TAD     LASTC   / RECOVER AGAIN TO CHECK ENDL
-  143 00620 7041          CIA             / CHAR => -CHAR
-  144 00621 7100          CLL             / CLEAR CARRY
-  145 00622 1252          TAD     ACR     / ADD CR 
-  146 00623 7440          SZA             / ZERO?
-  147 00624 5226          JMP     NOCR    / NO, GO ON     
-  148 00625 5233          JMP     FIXCR   / YES, FIX TERMINATOR
-  149 00626 7200  NOCR,   CLA
-  150 00627 1255          TAD     CNTR    / AC = COUNTER  
-  151 00630 7001          IAC             / AC++
-  152 00631 3255          DCA     CNTR    / CNTR *= 1
-  153 00632 5206          JMP     ILOOP   / GET NEXT CHAR
-  154 00633 7200  FIXCR,  CLA
-  155 00634 1011          TAD     INPBUFF
-  156 00635 1253          TAD     MNONE   / POINT BACK TO LAST CHARACTER
-  157 00636 7200          CLA
-  158 00637 3411          DCA I   INPBUFF / AND ZERO IT
-  159 00640 5600          JMP I   GETASC  / RETURN
-  160                     
-  161 00641 0000  PUTASC, 0               / OUTPUT AN ASCII STRING
-  162 00642 7100          CLL
-  163 00643 3010          DCA     OUTBUF
-  164 00644 7300  OLOOP,  CLA CLL
-  165 00645 1410          TAD I   OUTBUF
-  166 00646 7450          SNA             / ZERO?
-  167 00647 5641          JMP I   PUTASC  / YES, RETURN
-  168 00650 4777@         JMS     TTYO    / OUTPUT CHAR
-  169 00651 5244          JMP     OLOOP   / GET NEXT CHAR
-  170             
-  171 00652 0215  ACR,    CR              / CARRIAGE RETURN VALUE
-  172 00653 7777  MNONE,  -1              / MINUS ONE
-  173 00654 0000  LASTC,  0               / LAST READ CHARACTER
-  174 00655 0000  CNTR,   0               / CHARACTER COUNTER
-  175 00656 0656  IBUFF,  .
-  176 00657 0000          ZBLOCK BUFSIZ   / INPUT BUFFER
+  127             
+  128             
+      00576 0212
+      00577 0215
+  129                     PAGE
+  130             
+  131 00600 0000  GETASC, 0               / GET A CHARACTER STRING AT IBUFF
+  132 00601 7200          CLA             
+  133 00602 3255          DCA     CNTR    / COUNTER = 0
+  134 00603 1256          TAD     IBUFF
+  135 00604 3011          DCA     INPBUFF / INPBUFF => BEGIN OF INPUT BUFFER
+  136 00605 6032          KCC             / CLEAR KBD BUFFER
+  137 00606 6031  ILOOP,  KSF             /
+  138 00607 5206          JMP     .-1     /
+  139 00610 6036          KRB             / READ BUFFER
+  140 00611 3254          DCA     LASTC   / STORE TO USE LATER
+  141 00612 1254          TAD     LASTC   / RECOVER TO STORE IN BUFFER
+  142 00613 3411          DCA I   INPBUFF / STORE AND INCREMENT
+  143 00614 1254          TAD     LASTC   / RECOVER AGAIN TO OUTPUT
+  144 00615 4777@         JMS     TTYO    / ECHO IT
+  145 00616 7200          CLA             
+  146 00617 1254          TAD     LASTC   / RECOVER AGAIN TO CHECK ENDL
+  147 00620 7041          CIA             / CHAR => -CHAR
+  148 00621 7100          CLL             / CLEAR CARRY
+  149 00622 1252          TAD     ACR     / ADD CR 
+  150 00623 7440          SZA             / ZERO?
+  151 00624 5226          JMP     NOCR    / NO, GO ON     
+  152 00625 5233          JMP     FIXCR   / YES, FIX TERMINATOR
+  153 00626 7200  NOCR,   CLA
+  154 00627 1255          TAD     CNTR    / AC = COUNTER  
+  155 00630 7001          IAC             / AC++
+  156 00631 3255          DCA     CNTR    / CNTR *= 1
+  157 00632 5206          JMP     ILOOP   / GET NEXT CHAR
+  158 00633 7200  FIXCR,  CLA
+  159 00634 1011          TAD     INPBUFF
+  160 00635 1253          TAD     MNONE   / POINT BACK TO LAST CHARACTER
+  161 00636 7200          CLA
+  162 00637 3411          DCA I   INPBUFF / AND ZERO IT
+  163 00640 5600          JMP I   GETASC  / RETURN
+  164                     
+  165 00641 0000  PUTASC, 0               / OUTPUT AN ASCII STRING
+  166 00642 7100          CLL
+  167 00643 3010          DCA     OUTBUF
+  168 00644 7300  OLOOP,  CLA CLL
+  169 00645 1410          TAD I   OUTBUF
+  170 00646 7450          SNA             / ZERO?
+  171 00647 5641          JMP I   PUTASC  / YES, RETURN
+  172 00650 4777@         JMS     TTYO    / OUTPUT CHAR
+  173 00651 5244          JMP     OLOOP   / GET NEXT CHAR
+  174             
+  175 00652 0215  ACR,    CR              / CARRIAGE RETURN VALUE
+  176 00653 7777  MNONE,  -1              / MINUS ONE
+  177 00654 0000  LASTC,  0               / LAST READ CHARACTER
+  178 00655 0000  CNTR,   0               / CHARACTER COUNTER
+  179 00656 0656  IBUFF,  .
+  180 00657 0000          ZBLOCK BUFSIZ   / INPUT BUFFER
       00660 0000
+
+                                                                          Page 5
+
+
       00661 0000
       00662 0000
       00663 0000
       00664 0000
       00665 0000
-
-                                                                          Page 5
-
-
       00666 0000
       00667 0000
       00670 0000
@@ -298,15 +303,15 @@
       00747 0000
       00750 0000
       00751 0000
+
+                                                                          Page 6
+
+
       00752 0000
       00753 0000
       00754 0000
       00755 0000
       00756 0000
-
-                                                                          Page 6
-
-
       00757 0000
       00760 0000
       00761 0000
@@ -323,29 +328,34 @@
       00774 0000
       00775 0000
       00776 0000
-  177             
+  181             
       00777 0455
-  178                     PAGE
-  179 01000 1000  RBUFF,  .
-  180 01001 0000          ZBLOCK BUFSIZ   / REVERSE BUFFER
-      01002 0000
-      01003 0000
-      01004 0000
-      01005 0000
-      01006 0000
-      01007 0000
-      01010 0000
-      01011 0000
-      01012 0000
-      01013 0000
-      01014 0000
-      01015 0000
-      01016 0000
-      01017 0000
-      01020 0000
-      01021 0000
-      01022 0000
-      01023 0000
+  182                     PAGE
+  183             
+  184 01000 0000  DOREV,  0               / REVERSE STRING AT INBUF, SIZE=CNTR
+  185 01001 7300          CLA CLL         / CLEAN UP ACCUMULATOR
+  186 01002 1222          TAD     RBUFF   / GET ADDRESS OF REVERSE BUFF
+  187 01003 3012          DCA     REVBUF  / DEPOSIT IT IN AUTOINCR PTR
+  188 01004 1777@         TAD     IBUFF   / GET ADDRESS OF STRING (@STRING-1)
+  189 01005 1776@         TAD     CNTR    / POINT TO END OF STRING
+  190 01006 3020          DCA     REVPTR  / DEPOSIT ADDRESS IN ZPAG PTR
+  191             
+  192 01007 1776@         TAD     CNTR    / GET NUMBER OF CHARS TO REVERSE
+  193 01010 7041          CIA             / NEGATIVE VALUE
+  194 01011 3021          DCA     REVCTR  / DEPOSIT IN COUNTER
+  195             
+  196 01012 1420  RLOOP,  TAD I   REVPTR  / GET CHARACTER
+  197 01013 3412          DCA I   REVBUFF / STORE, ADVANCE REV PTR
+  198 01014 1020          TAD     REVPTR  / SOURCE BUFFER: BACK 1
+  199 01015 1775@         TAD     MNONE   /
+  200 01016 3020          DCA     REVPTR  /
+  201 01017 2021          ISZ     REVCTR  / INCREMENT COUNTER (FROM NEG)
+  202 01020 5212          JMP     RLOOP   / NON ZERO? DO NEXT             
+  203 01021 4600          JMS I   DOREV   / ZERO? END OF REVERSING
+  204             
+  205             
+  206 01022 1022  RBUFF,  .
+  207 01023 0000          ZBLOCK BUFSIZ   / REVERSE BUFFER
       01024 0000
       01025 0000
       01026 0000
@@ -354,6 +364,10 @@
       01031 0000
       01032 0000
       01033 0000
+
+                                                                          Page 7
+
+
       01034 0000
       01035 0000
       01036 0000
@@ -364,10 +378,6 @@
       01043 0000
       01044 0000
       01045 0000
-
-                                                                          Page 7
-
-
       01046 0000
       01047 0000
       01050 0000
@@ -411,89 +421,122 @@
       01116 0000
       01117 0000
       01120 0000
-  181             
+      01121 0000
+      01122 0000
+      01123 0000
+      01124 0000
+
+                                                                          Page 8
+
+
+      01125 0000
+      01126 0000
+      01127 0000
+      01130 0000
+      01131 0000
+      01132 0000
+      01133 0000
+      01134 0000
+      01135 0000
+      01136 0000
+      01137 0000
+      01140 0000
+      01141 0000
+      01142 0000
+  208             
+      01175 0653
+      01176 0655
+      01177 0656
       00177 7600
 
       No detected errors
 
-                                                                          Page 8
+                                                                          Page 9
                                                                     Symbol Table
 
     1  ACR    00652 
     2  ADDMSK 00440 
     3  AMASK  00463 
     4  BUFSIZ  0120 
-    5  BYE    00303 
+    5  BYE    00304 
     6  CNTR   00655 
     7  CR      0215 
     8  CURCHR 00467 
     9  CURSIX 00466 
-   10  FINISH 00225 
-   11  FIXCR  00633 
-   12  GETASC 00600 
-   13  GLOOP  00204 
-   14  HELLO  00233 
-   15  IBUFF  00656 
-   16  ILOOP  00606 
-   17  INPBUF  0011 
-   18  INVER  00272 
-   19  LASTC  00654 
-   20  LF      0212 
-   21  LMASK  00464 
-   22  MNONE  00653 
-   23  NEWL   00445 
-   24  NEXTW  00402 
-   25  NOCR   00626 
-   26  OLOOP  00644 
-   27  OUTBUF  0010 
-   28  PROMPT 00261 
-   29  PUTASC 00641 
-   30  PUTSIX 00400 
-   31  RBUFF  01000 
-   32  REVBUF  0012 
-   33  RMASK  00465 
-   34  SIGN   00471 
-   35  SIXOUT 00424 
-   36  SPACE  00470 
-   37  TTYO   00455 
+   10  DOREV  01000 
+   11  FINISH 00226 
+   12  FIXCR  00633 
+   13  GETASC 00600 
+   14  GLOOP  00204 
+   15  HELLO  00234 
+   16  IBUFF  00656 
+   17  ILOOP  00606 
+   18  INPBUF  0011 
+   19  INVER  00273 
+   20  LASTC  00654 
+   21  LF      0212 
+   22  LMASK  00464 
+   23  MNONE  00653 
+   24  NEWL   00445 
+   25  NEXTW  00402 
+   26  NOCR   00626 
+   27  OLOOP  00644 
+   28  OUTBUF  0010 
+   29  PROMPT 00262 
+   30  PUTASC 00641 
+   31  PUTSIX 00400 
+   32  RBUFF  01022 
+   33  REVBUF  0012 
+   34  REVCTR  0021 
+   35  REVPTR  0020 
+   36  RLOOP  01012 
+   37  RMASK  00465 
+   38  SIGN   00471 
+   39  SIXOUT 00424 
+   40  SPACE  00470 
+   41  TTYO   00455 
 
-                                                                          Page 9
+                                                                         Page 10
                                                                  Cross Reference
 
-    1 A    171  ACR         145
-    2 A     93  ADDMSK       88
-    3 A    116  AMASK        95
-    4 A      9  BUFSIZ      176    180
-    5 A     52  BYE          40
-    6 A    174  CNTR         25    129    150    152
-    7 A     10  CR          101    171    171
-    8 A    120  CURCHR       82     86     90     94
-    9 A    119  CURSIX       61     63     74
-   10 A     39  FINISH       27
-   11 A    154  FIXCR       148
-   12 A    127  GETASC       22    159
-   13 A     18  GLOOP        37
-   14 A     46  HELLO        14
-   15 A    175  IBUFF        34    130
-   16 A    133  ILOOP       153
-   17 A      7  INPBUF      131    138    155    158
-   18 A     50  INVER        30
-   19 A    173  LASTC       136    137    139    142
-   20 A     11  LF          104
-   21 A    117  LMASK        64
-   22 A    172  MNONE       156
-   23 A     99  NEWL         16     23     36     42    106
-   24 A     60  NEXTW        79
-   25 A    149  NOCR        147
-   26 A    164  OLOOP       169
-   27 A      6  OUTBUF       59     60    163    165
-   28 A     48  PROMPT       19
-   29 A    161  PUTASC       35    167
-   30 A     57  PUTSIX       15     20     31     41     70     77
-   31 A    179  RBUFF   
-   32 A      8  REVBUF  
-   33 A    118  RMASK        75
-   34 A    122  SIGN    
-   35 A     81  SIXOUT       71     78     92     97
-   36 A    121  SPACE        84
-   37 A    108  TTYO         91     96    102    105    113    140    168
+    1 A    175  ACR         149
+    2 A     97  ADDMSK       92
+    3 A    120  AMASK        99
+    4 A     11  BUFSIZ      180    207
+    5 A     56  BYE          44
+    6 A    178  CNTR         27    133    154    156    189    192
+    7 A     12  CR          105    175    175
+    8 A    124  CURCHR       86     90     94     98
+    9 A    123  CURSIX       65     67     78
+   10 A    184  DOREV        35    203
+   11 A     43  FINISH       29
+   12 A    158  FIXCR       152
+   13 A    131  GETASC       24    163
+   14 A     20  GLOOP        41
+   15 A     50  HELLO        16
+   16 A    179  IBUFF       134    188
+   17 A    137  ILOOP       157
+   18 A      7  INPBUF      135    142    159    162
+   19 A     54  INVER        32
+   20 A    177  LASTC       140    141    143    146
+   21 A     13  LF          108
+   22 A    121  LMASK        68
+   23 A    176  MNONE       160    199
+   24 A    103  NEWL         18     25     40     46    110
+   25 A     64  NEXTW        83
+   26 A    153  NOCR        151
+   27 A    168  OLOOP       173
+   28 A      6  OUTBUF       63     64    167    169
+   29 A     52  PROMPT       21
+   30 A    165  PUTASC       39    171
+   31 A     61  PUTSIX       17     22     33     45     74     81
+   32 A    206  RBUFF        38    186
+   33 A      8  REVBUF      187    197
+   34 A     10  REVCTR      194    201
+   35 A      9  REVPTR      190    196    198    200
+   36 A    196  RLOOP       202
+   37 A    122  RMASK        79
+   38 A    126  SIGN    
+   39 A     85  SIXOUT       75     82     96    101
+   40 A    125  SPACE        88
+   41 A    112  TTYO         95    100    106    109    117    144    172
