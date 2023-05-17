@@ -8,12 +8,10 @@ CL=cl65
 .s.prg:
 	$(CL) $(TARGET) $(LDCONFIG) $(LDFLAGS) -o $@ -l $*.lst -m $*.map $^
 
-all:	revers.prg hello.prg
+all:	revers.prg 
 
 revers.prg:	revers.s
 
-hello.prg:	hello.s
-
 clean:
-	-@rm hello.prg hello.lst hello.map revers.prg revers.lst revers.map
+	-@rm revers.prg revers.lst revers.map revers.o
 
